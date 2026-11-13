@@ -16,3 +16,4 @@ docker compose up --build
 A aplicação fica disponível em http://localhost:8000.
 # Maskeiko
 # Maskeiko
+# interactive_llm_rpg
