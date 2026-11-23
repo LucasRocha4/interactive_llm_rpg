@@ -1,0 +1,18 @@
+{
+  "requisicao_id": "b67a0f7cf8c2",
+  "tipo": "mover",
+  "acao_id": null,
+  "tecnica_id": null,
+  "parametros": {
+    "alvo_id": "clareira",
+    "equipamento_id": null,
+    "quantidade": null,
+    "distancia_m": null,
+    "tamanho_objeto": null
+  },
+  "teste": {
+    "atributo_id": null,
+    "vantagem": false,
+    "desvantagem": false
+  }
+}

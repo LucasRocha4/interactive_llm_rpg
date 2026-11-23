@@ -7,5 +7,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./llm_interactive_rpg:/app
-    command: python manage.py runserver 0.0.0.0:8000
+      - .:/app
+    stdin_open: true
+    tty: true
+    command: python llm_interactive_rpg/manage.py runserver 0.0.0.0:8000
