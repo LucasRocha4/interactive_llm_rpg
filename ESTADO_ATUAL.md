@@ -1,185 +1,129 @@
 # Estado atual do projeto
 
-Este projeto está em uma etapa intermediária: já existe um pipeline de terminal que lê uma ação em português, usa o Gemini para transformá-la em um `IntentJogador` validado e monta um `PedidoMotor` para o motor de regras.
+## O que foi implementado
 
-O motor de regras ainda não está conectado à implementação. Até esse módulo existir, o payload válido é escrito em `llm_interactive_rpg/ultimo_pedido_motor.json` e o terminal mostra que o despacho ficou fora da fila.
+O pipeline de teste funciona no terminal:
 
-## Fluxo implementado
+1. O jogador informa uma ação em português.
+2. O Gemini interpreta a intenção, os IDs da cena e, quando necessário, a
+   dificuldade qualitativa: `facil`, `media`, `dificil` ou `absurda`.
+3. A bridge converte a intenção em `PedidoMotor`. Perguntas pendentes impedem a
+   execução até que a ação seja esclarecida.
+4. O motor Python consulta as regras, executa rolagens e aplica as alterações.
+5. O terminal mostra o resultado estruturado, o personagem e a cena.
 
-O ponto de entrada é o [main.py](main.py):
+O Gemini não escolhe dificuldades numéricas, não rola dados e não calcula dano.
+O motor aceita um gerador aleatório injetável para testes reproduzíveis. Os
+arquivos oficiais de regras ficam em `llm_interactive_rpg/config/regras/`.
 
-1. `main.py` chama `main()` em `llm_interactive_rpg/app/main.py`.
-2. O programa carrega o `.env` da raiz.
-3. O terminal solicita texto com `Jogador>`.
-4. `interpretar_acao()` envia o texto e a cena atual para o Gemini.
-5. A resposta deve seguir o modelo Pydantic `IntentJogador`.
-6. Se houver perguntas pendentes, o envio ao motor é interrompido e o terminal pergunta o que falta.
-7. Quando não há ambiguidade, `montar_pedido_motor()` cria o contrato `PedidoMotor`.
-8. `despachar_para_motor()` tenta encontrar o motor de regras.
-9. Enquanto o motor estiver desconectado, o payload é salvo em `llm_interactive_rpg/ultimo_pedido_motor.json`.
+### Ficha e cena de teste
 
-O personagem usado neste estágio é simulado em `personagem_simulado()` em `llm_interactive_rpg/app/main.py`. Os inimigos, NPCs, locais e objetos presentes na cena também são dados de exemplo. Não há persistência de ficha nem uma conversa entre comandos.
+- A ficha padrão é **Bongo "Chulé"**, de ID `bongo_chule`, carregada de
+  `llm_interactive_rpg/config/regras/exemplos_de_ficha.json`.
+- A ficha começa com 6 corações, infecção 0, machado de pedra e a técnica
+  Bater no Peito. A cena simulada contém um rato e uma cobra.
+- Personagem e cena são mantidos em memória durante a sessão. Ao reiniciar,
+  voltam ao estado inicial; a ficha de origem não é alterada.
+- O inventário é um mapa de quantidades, separado da lista de equipamentos.
+  Informações necessárias ausentes interrompem a ação com esclarecimento.
 
-## Contratos principais
+### Motor de regras
 
-Os contratos estão em `llm_interactive_rpg/app/pipeline/schemas.py`:
+- Dificuldades da tabela: Fácil 8, Média 12, Difícil 16 e Absurda 20.
+- Testes usam `d20 + atributo`; vantagem e desvantagem se cancelam. Um 20
+  natural garante sucesso e um 1 natural é uma mancada.
+- Ataques usam a Defesa do alvo. O dano é fixo, pode ser dobrado por crítico e
+  é reduzido pela proteção sem ficar negativo. Estilingues consomem pedras;
+  recolher uma pedra exige Manha contra Fácil.
+- Com 0 corações, o personagem fica Caído. Pode tentar levantar, usar banana
+  curativa ou ativar Cura Dramática quando disponível; outras ações são
+  bloqueadas. Três falhas ao levantar causam morte. Infecção 5 causa morte e
+  zumbificação.
+- As ações e técnicas dos JSONs possuem tratamento no motor, incluindo custos,
+  efeitos e limites aplicáveis; ações que exigem contexto ausente solicitam
+  esclarecimento.
+- Turnos, efeitos e recargas avançam com ações executadas. O encerramento da
+  cena depende do objetivo e de uma abertura de transição; dormir pode avançar
+  o dia, desde que não haja evento pendente.
 
-- `IntentJogador`: formato estruturado produzido pela IA.
-- `PedidoMotor`: formato enxuto que será enviado ao motor.
-- `ParametrosMotor`: alvo, equipamento, quantidade, distância e tamanho.
-- `TesteMotor`: atributo e vantagem ou desvantagem.
+## Como testar localmente
 
-O formato final contém, entre outros campos:
-
-```json
-{
-  "requisicao_id": "identificador_curto",
-  "tipo": "mover",
-  "acao_id": null,
-  "tecnica_id": null,
-  "parametros": {
-    "alvo_id": "clareira",
-    "equipamento_id": null,
-    "quantidade": null,
-    "distancia_m": null,
-    "tamanho_objeto": null
-  },
-  "teste": {
-    "atributo_id": null,
-    "vantagem": false,
-    "desvantagem": false
-  }
-}
-```
-
-Os IDs válidos são extraídos dos arquivos JSON em `llm_interactive_rpg/config/regras/`. Isso evita que o Gemini invente ações, técnicas ou equipamentos fora da base atual.
-
-## Pré-configuração necessária
-
-### Opção A: executar localmente
-
-Na raiz do projeto:
+Na raiz do projeto, crie e ative o ambiente virtual se necessário:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-Copie o modelo de ambiente:
+### Testes automáticos, sem Gemini
 
 ```bash
-cp .env.example .env
+python -m unittest discover -s tests -v
+python llm_interactive_rpg/config/regras/validar.py
 ```
 
-Edite `.env` e configure duas variáveis:
-
-```dotenv
-DJANGO_SECRET_KEY=sua-chave-secreta
-GEMINI_API_KEY=sua-chave-da-api-gemini
-```
-
-Gere uma chave Django, por exemplo:
+O primeiro comando deve terminar com `OK`; o segundo, com
+`OK: validação concluída`. Para executar somente os testes da ficha padrão:
 
 ```bash
-python3 -c "import secrets; print(secrets.token_urlsafe(50))"
+python -m unittest discover -s tests -p 'test_ficha_padrao.py' -v
 ```
 
-Não reutilize uma chave que já foi compartilhada ou publicada. O `.env` está ignorado pelo Git e não deve ser enviado ao repositório.
+### Teste interativo com Gemini
 
-### Opção B: executar com Docker
-
-Requisitos: Docker e Docker Compose.
-
-Na raiz do projeto, crie o `.env` como descrito acima e execute:
+Se ainda não existir, crie `.env` a partir do exemplo, sem sobrescrever um
+arquivo já configurado:
 
 ```bash
-docker compose up --build
+cp -n .env.example .env
 ```
 
-Isso inicia o servidor Django em `http://localhost:8000`.
-
-Para usar o pipeline do terminal, em outro terminal execute:
-
-```bash
-docker compose run --rm web python main.py
-```
-
-Como o compose mantém o repositório montado em `/app`, alterações nos arquivos locais ficam disponíveis no contêiner sem reconstruir a imagem.
-
-## Como testar o `main.py`
-
+Edite `.env` e preencha `GEMINI_API_KEY`. Para usar também o servidor Django,
+preencha `DJANGO_SECRET_KEY` com uma chave própria. Não compartilhe o arquivo.
 Execute:
 
 ```bash
 python main.py
 ```
 
-Entrada simples já válida:
+Confirme a mensagem de seleção da ficha `bongo_chule`. No prompt `Jogador>`,
+experimente:
 
 ```text
-Jogador> vou para a clareira
+Vou recolher uma pedra do chão.
+Ataco o rato selvagem com meu machado de pedra.
+sair
 ```
 
-A saída esperada inclui, nesta ordem:
+Confira `status`, `rolagem`, `sucesso`, `dano_final`, `Personagem` e `Cena` na
+saída. A interpretação pode solicitar esclarecimentos e o resultado do dado é
+aleatório. Uma chamada real ao Gemini requer acesso à API e uma chave válida;
+os testes automáticos usam resposta simulada.
 
-1. `[STEP 1 - INPUT]`: texto recebido e ID da requisição.
-2. `[STEP 2 - GEMINI PARSER]`: `IntentJogador` retornado e validado.
-3. `[STEP 3 - VALIDACAO]`: lista de perguntas pendentes.
-4. `[STEP 4 - ADAPTER]`: payload completo do `PedidoMotor`.
-5. `[STEP 5 - MOTOR DISPATCH]`: aviso de que o motor está indisponível e caminho da outbox.
+## Como testar com Docker
 
-Exemplos úteis para testar:
-
-```text
-Jogador> vou para a clareira
-Jogador> atacar o rato com o machado
-Jogador> investigar a pedra
-Jogador> sair
-```
-
-Se a IA considerar que falta uma informação crítica, ela deve preencher `perguntas_pendentes`. Nesse caso, o programa mostra a pergunta e não envia nem grava um pedido incompleto.
-
-Ao terminar um despacho bem formado sem motor conectado, confira:
+O Dockerfile já inclui dependências, código e regras. Com `.env` configurado,
+construa a imagem e execute os testes:
 
 ```bash
-cat llm_interactive_rpg/ultimo_pedido_motor.json
+docker compose build
+docker compose run --rm --no-deps web python -m unittest discover -s tests -v
+docker compose run --rm --no-deps web python llm_interactive_rpg/config/regras/validar.py
 ```
 
-No Docker:
+Para executar o pipeline interativo:
 
 ```bash
-docker compose run --rm web cat llm_interactive_rpg/ultimo_pedido_motor.json
+docker compose run --rm --no-deps web python main.py
 ```
 
-## Validação da base de regras
+O comando padrão `docker compose up --build` inicia o servidor Django em
+`http://localhost:8000`; o jogo de teste é o comando interativo acima, não uma
+interface web. A configuração Docker é voltada ao desenvolvimento.
 
-Antes de testar ou alterar os arquivos JSON de regras:
+## Limitações atuais
 
-```bash
-python llm_interactive_rpg/config/regras/validar.py
-```
-
-O comando deve terminar com `OK: validação concluída`. Ele verifica os IDs, referências cruzadas, quantidades e regras estruturais dos dados.
-
-## Situação atual e próximos passos
-
-O que já funciona:
-
-- leitura de texto no terminal;
-- configuração da chave Gemini por ambiente;
-- criação da cena atual;
-- resposta estruturada e validada por Pydantic;
-- interrupção segura para informações ambíguas;
-- montagem de `PedidoMotor`;
-- serialização do payload em JSON.
-
-O que ainda falta:
-
-- implementar ou integrar o módulo real do motor de regras;
-- habilitar `MOTOR_DISPONIVEL = True` em `motor_bridge.py` após o módulo existir;
-- definir o formato e o tratamento da resposta do motor;
-- devolver o resultado do motor ao terminal;
-- persistir personagem e estado da partida;
-- substituir os dados simulados por entrada real do usuário.
+Não há persistência da partida entre execuções, simulação autônoma de inimigos
+nem geração automática de próximas cenas. A cena e os inimigos são exemplos;
+algumas ações dependem de informações adicionais no contexto.

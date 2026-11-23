@@ -1,0 +1,7 @@
+[
+  {"id": "cego", "descricao": "Desvantagem em ataques.", "duracao_turnos": 2},
+  {"id": "surdo", "descricao": "Efeito narrativo.", "duracao_turnos": null},
+  {"id": "paralisado", "descricao": "Nao pode agir; termina ao sofrer dano.", "duracao_turnos": 5},
+  {"id": "derrubado", "descricao": "Somente levantar ou curar.", "duracao_turnos": null},
+  {"id": "zonzo", "descricao": "Desvantagem em testes.", "duracao_turnos": 1}
+]

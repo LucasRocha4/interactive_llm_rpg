@@ -15,7 +15,11 @@ except ImportError:
     genai = None
 
 from .pipeline.motor_bridge import despachar_para_motor, montar_pedido_motor
-from .pipeline.parser_ia import interpretar_acao
+from .pipeline.parser_ia import criar_cena_atual, interpretar_acao
+from .motor.regras_engine import REGRAS_ROOT, MotorRegras
+
+
+FICHA_PADRAO_ID = "bongo_chule"
 
 
 def configurar_logs() -> None:
@@ -32,24 +36,53 @@ def configurar_logs() -> None:
     raiz.addHandler(handler)
 
 
-def personagem_simulado() -> dict[str, object]:
+def personagem_simulado(motor: MotorRegras | None = None) -> dict[str, object]:
+    if motor is None:
+        motor = MotorRegras()
+    with (REGRAS_ROOT / "exemplos_de_ficha.json").open(encoding="utf-8") as arquivo:
+        fichas = json.load(arquivo)
+    correspondentes = [ficha for ficha in fichas if ficha["id"] == FICHA_PADRAO_ID]
+    if len(correspondentes) != 1:
+        raise ValueError(f"Esperada uma ficha de exemplo com id {FICHA_PADRAO_ID!r}.")
+    ficha = correspondentes[0]
+    escolhas = ficha["escolhas"]
+    coracoes = motor.regras["coracoes"]["valores"]["iniciais"]
+    infeccao = motor.regras["infeccao"]["valores"]
+    tecnicas = [
+        tecnica["id"]
+        for tecnica in motor.tecnicas.values()
+        if tecnica["oficio_id"] == escolhas["oficio_id"]
+        and tecnica["nivel"] <= escolhas["nivel"]
+    ]
     return {
-        "id": "bongo_chule",
-        "nome": "Bongo Chulé",
-        "nivel": 1,
-        "pelagem_id": "marrom",
-        "oficio_id": "lutador",
-        "defeito_id": "cheiro_de_pantano",
-        "atributos": {"garra": 3, "manha": 1, "pulo": 3, "acaso": 1},
-        "coracoes": {"atual": 6, "maximo": 6},
-        "infeccao": {"atual": 0, "maximo": 5},
-        "defesa": 13,
-        "equipamentos": ["machado_de_pedra"],
-        "tecnicas_disponiveis": ["lutador_n1_bater_no_peito"],
+        "id": ficha["id"],
+        "nome": ficha["nome"],
+        "nivel": escolhas["nivel"],
+        "pelagem_id": escolhas["pelagem_id"],
+        "oficio_id": escolhas["oficio_id"],
+        "defeito_id": escolhas["defeito_id"],
+        "atributos": dict(ficha["atributos_calculados"]),
+        "coracoes": {"atual": coracoes, "maximo": coracoes},
+        "infeccao": {"atual": infeccao["minimo"], "maximo": infeccao["maximo"]},
+        "defesa": ficha["defesa"],
+        "equipamentos": [escolhas["equipamento_id"]],
+        "inventario": {"pedra": 0, "banana_curativa": 0},
+        "condicoes": [],
+        "turnos_caido": 0,
+        "tecnicas_disponiveis": tecnicas,
     }
 
 
-def executar_turno(texto: str, personagem: dict[str, object]) -> None:
+def executar_turno(
+    texto: str,
+    personagem: dict[str, object],
+    cena: dict[str, object] | None = None,
+    motor: MotorRegras | None = None,
+) -> None:
+    if cena is None:
+        cena = criar_cena_atual(personagem)
+    if motor is None:
+        motor = MotorRegras()
     requisicao_id = uuid.uuid4().hex[:12]
     logging.info(
         "[STEP 1 - INPUT] Texto capturado do terminal: %r; requisicao_id gerado: %s",
@@ -58,7 +91,7 @@ def executar_turno(texto: str, personagem: dict[str, object]) -> None:
     )
 
     try:
-        intent = interpretar_acao(texto, personagem)
+        intent = interpretar_acao(texto, personagem, cena)
     except Exception as error:
         logging.error("[STEP 2 - GEMINI PARSER] Falha ao interpretar acao: %s", error)
         return
@@ -76,7 +109,10 @@ def executar_turno(texto: str, personagem: dict[str, object]) -> None:
         return
 
     pedido = montar_pedido_motor(intent, requisicao_id)
-    despachar_para_motor(pedido, personagem)
+    resultado = despachar_para_motor(pedido, personagem, cena, motor)
+    print(json.dumps(resultado.model_dump(mode="json"), ensure_ascii=False, indent=2))
+    print("Personagem:", json.dumps(personagem, ensure_ascii=False))
+    print("Cena:", json.dumps(cena, ensure_ascii=False))
 
 
 def main() -> None:
@@ -92,7 +128,10 @@ def main() -> None:
         logging.error("GEMINI_API_KEY nao configurada. Defina a variavel de ambiente antes de iniciar.")
         return
 
-    personagem = personagem_simulado()
+    motor = MotorRegras()
+    personagem = personagem_simulado(motor)
+    logging.info("Ficha de teste selecionada: %s (%s).", personagem["nome"], personagem["id"])
+    cena = criar_cena_atual(personagem)
     while True:
         try:
             texto = input("Jogador> ").strip()
@@ -106,7 +145,7 @@ def main() -> None:
             logging.info("Comando sair recebido. Encerrando limpo.")
             break
 
-        executar_turno(texto, personagem)
+        executar_turno(texto, personagem, cena, motor)
 
 
 if __name__ == "__main__":

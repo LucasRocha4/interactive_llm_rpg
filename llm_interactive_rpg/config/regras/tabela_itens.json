@@ -1,0 +1,6 @@
+{
+  "cura": ["banana_curativa"],
+  "combate": ["faca_de_pedra", "pedra"],
+  "protecao": ["escudo_de_tampa"],
+  "magia": ["banana_mistica"]
+}

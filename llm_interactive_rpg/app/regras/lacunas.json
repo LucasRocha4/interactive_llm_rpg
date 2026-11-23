@@ -1,0 +1,15 @@
+[
+  {"onde":"equipamentos","o_que_falta":"Os kits dizem que pedras, bananas e cocos são quantidades de itens, mas o PDF não fornece uma ficha completa para cada consumível (por exemplo, não define dano geral de pedra nem categoria formal).","sugestao":"Manter os registros com os campos desconhecidos como null e usar apenas os efeitos explicitamente descritos nos kits e regras."},
+  {"onde":"tecnicas","o_que_falta":"O PDF não informa dificuldade para os testes de Acaso de Sujeira nos Olhos, Armadilha Improvisada, nem para os testes de Manha de Rastrear e de Acaso de Chá Duvidoso.","sugestao":"Deixar dificuldade como null até decisão no texto-fonte."},
+  {"onde":"tecnicas","o_que_falta":"A frequência exata de algumas técnicas sem limite escrito não é nomeada no PDF.","sugestao":"Representar como sempre apenas para distinguir a ausência de um limite de uso; revisar se o jogo definir uma frequência diferente."},
+  {"onde":"acoes","o_que_falta":"Farejar usa dificuldade 14, que não aparece na tabela de dificuldades nomeadas (8, 12, 16 e 20).","sugestao":"Preservar 14 no registro da ação; não criar um nível de dificuldade que o PDF não nomeia."},
+  {"onde":"regras_gerais.defesa","o_que_falta":"Falta definir a Defesa de zumbis, do monstro que explode e dos NPCs.","sugestao":"Manter apenas a fórmula provisória do macaco e não preencher as outras Defesas."},
+  {"onde":"regras_gerais.evolucao","o_que_falta":"A proposta de evolução (+1 nos níveis 2 e 3, máximo 5) ainda precisa ser validada com testes de jogo.","sugestao":"Marcar provisorio como true e não alterar os limites."},
+  {"onde":"regras_gerais.caido_solo","o_que_falta":"Decidir entre permadeath com Legado, Segundas Chances limitadas ou uma mistura; o Caído solo de 3 turnos também é provisório.","sugestao":"Preservar a regra provisória e registrar a decisão em aberto."},
+  {"onde":"regras_gerais","o_que_falta":"O balanço do modo solo pode exigir mais corações iniciais ou uma banana curativa extra.","sugestao":"Não ajustar os 6 corações nem criar item extra antes dos testes."},
+  {"onde":"regras_gerais","o_que_falta":"O formato da ficha JSON para o narrador e a rolagem feita pelo código ainda não foram definidos.","sugestao":"Usar os arquivos desta entrega apenas como banco de regras; definir o formato operacional em uma etapa posterior."},
+  {"onde":"tecnicas.catador_n1_bolso_misterioso","o_que_falta":"A tabela de itens do Bolso Misterioso é citada, mas não existe no PDF.","sugestao":"Não criar uma tabela de itens nem itens adicionais."},
+  {"onde":"regras_gerais","o_que_falta":"Nomes aleatórios de macaco são opcionais e não foram fornecidos.","sugestao":"Não criar nomes."},
+  {"onde":"regras_gerais","o_que_falta":"A tabela ou regra de nomes de macaco aleatórios é opcional e ausente.","sugestao":"Não criar coleção adicional."},
+  {"onde":"regras_gerais","o_que_falta":"As opções de equilíbrio da escolha livre (custo em pontos, achados de aventura e armas fortes) não foram decididas.","sugestao":"Preservar apenas os kits das três colunas que aparecem nas tabelas."}
+]

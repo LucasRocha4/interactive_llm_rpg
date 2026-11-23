@@ -1,3 +1,17 @@
 [
-  {"id":"bongo_chule","nome":"Bongo \"Chulé\"","escolhas":{"pelagem_id":"marrom","oficio_id":"lutador","defeito_id":"cheiro_de_pantano","equipamento_id":"machado_de_pedra","nivel":1},"atributos_calculados":{"garra":3,"manha":1,"pulo":3,"acaso":1},"defesa":13,"texto_original":"Nome Bongo \"Chulé\"; Pelagem / Ofício / Nível Marrom / Lutador / 1; Defeito Cheiro de Pântano; Garra +3 (2 pelagem + 1 ofício); Manha +1; Pulo +3 (2 pelagem + 1 ofício); Acaso +1; Equipamento Machado de pedra (dano 4); Corações 6 de 6; Infecção 0 de 5; Defesa 13 (10 + Pulo); Técnica do nível 1 Bater no Peito"}
+  {"id":"bongo_chule","nome":"Bongo \"Chulé\"",
+  "escolhas":{"pelagem_id":"marrom",
+  "oficio_id":"lutador",
+  "defeito_id":"cheiro_de_pantano",
+  "equipamento_id":"machado_de_pedra",
+  "nivel":1},
+
+  "atributos_calculados":{"garra":3,
+  "manha":1,
+  "pulo":3,
+  "acaso":1},
+
+  "defesa":13,
+
+  "texto_original":"Nome Bongo \"Chulé\"; Pelagem / Ofício / Nível Marrom / Lutador / 1; Defeito Cheiro de Pântano; Garra +3 (2 pelagem + 1 ofício); Manha +1; Pulo +3 (2 pelagem + 1 ofício); Acaso +1; Equipamento Machado de pedra (dano 4); Corações 6 de 6; Infecção 0 de 5; Defesa 13 (10 + Pulo); Técnica do nível 1 Bater no Peito"}
 ]

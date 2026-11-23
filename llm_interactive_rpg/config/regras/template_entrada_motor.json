@@ -17,10 +17,12 @@
       "nome_mencionado": null
     },
     "equipamento_id": null,
+    "objeto_id": null,
     "quantidade": null,
     "distancia_m": null,
     "tamanho_objeto": null,
     "atributo_id": null,
+    "dificuldade": null,
     "vantagem": null,
     "desvantagem": null,
     "campos_ausentes": [],
@@ -61,6 +63,7 @@
     "parametros": {
       "alvo_id": null,
       "equipamento_id": null,
+      "objeto_id": null,
       "quantidade": null,
       "distancia_m": null,
       "tamanho_objeto": null
@@ -83,12 +86,13 @@
     }
   },
   "resultado_motor": {
-    "status": "pendente",
+    "status": "aguardando_esclarecimento",
     "sucesso": null,
+    "rolagem": null,
     "efeitos": [],
-    "dano": null,
-    "protecao_aplicada": null,
-    "alteracoes_personagem": [],
-    "mensagem_narrador": null
+    "dano_bruto": 0,
+    "protecao_aplicada": 0,
+    "dano_final": 0,
+    "alteracoes_personagem": []
   }
 }

@@ -1,0 +1,36 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Banco de regras do Sistema d20 do Macaco",
+  "type":"object",
+  "required":["atributos","pelagens","oficios","tecnicas","defeitos","equipamentos","kits","acoes","dificuldades","regras_gerais","exemplos_de_ficha"],
+  "properties":{
+    "atributos":{"type":"array","items":{"$ref":"#/$defs/atributo"}},
+    "pelagens":{"type":"array","items":{"$ref":"#/$defs/pelagem"}},
+    "oficios":{"type":"array","items":{"$ref":"#/$defs/oficio"}},
+    "tecnicas":{"type":"array","items":{"$ref":"#/$defs/tecnica"}},
+    "defeitos":{"type":"array","items":{"$ref":"#/$defs/defeito"}},
+    "equipamentos":{"type":"array","items":{"$ref":"#/$defs/equipamento"}},
+    "kits":{"type":"array","items":{"$ref":"#/$defs/kit"}},
+    "acoes":{"type":"array","items":{"$ref":"#/$defs/acao"}},
+    "dificuldades":{"type":"array","items":{"$ref":"#/$defs/dificuldade"}},
+    "regras_gerais":{"type":"array","items":{"$ref":"#/$defs/regra"}},
+    "exemplos_de_ficha":{"type":"array","items":{"$ref":"#/$defs/ficha"}}
+  },
+  "$defs":{
+    "id":{"type":"string","pattern":"^[a-z0-9]+(?:_[a-z0-9]+)*$"},
+    "texto":{"type":"string","minLength":1},
+    "atributo":{"type":"object","required":["id","nome","descricao","usado_para","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"nome":{"type":"string"},"descricao":{"type":"string"},"usado_para":{"type":"array","items":{"type":"string"}},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false},
+    "pelagem":{"type":"object","required":["id","nome","atributos","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"nome":{"type":"string"},"atributos":{"type":"object","required":["garra","manha","pulo","acaso"],"properties":{"garra":{"type":"integer","enum":[1,2]},"manha":{"type":"integer","enum":[1,2]},"pulo":{"type":"integer","enum":[1,2]},"acaso":{"type":"integer","enum":[1,2]}},"additionalProperties":false},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false},
+    "bonus":{"type":"object","required":["atributo_id","valor"],"properties":{"atributo_id":{"$ref":"#/$defs/id"},"valor":{"const":1}},"additionalProperties":false},
+    "oficio":{"type":"object","required":["id","nome","estilo_de_jogo","bonus_atributos","equipamento_inicial","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"nome":{"type":"string"},"estilo_de_jogo":{"type":"string"},"bonus_atributos":{"type":"array","minItems":2,"maxItems":2,"items":{"$ref":"#/$defs/bonus"}},"equipamento_inicial":{"type":"object"},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false},
+    "tecnica":{"type":"object","required":["id","oficio_id","nivel","nome","frequencia","descricao","efeitos","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"oficio_id":{"$ref":"#/$defs/id"},"nivel":{"type":"integer","enum":[1,2,3]},"nome":{"type":"string"},"frequencia":{"enum":["sempre","cena","dia","custo_em_bananas"]},"descricao":{"type":"string"},"efeitos":{"type":"object"},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false},
+    "defeito":{"type":"object","required":["id","nome","efeito_texto","teste","efeitos_mecanicos","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"nome":{"type":"string"},"efeito_texto":{"type":"string"},"teste":{"type":["object","null"]},"efeitos_mecanicos":{"type":"object"},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false},
+    "equipamento":{"type":"object","required":["id","nome","categoria","dano","protecao","a_distancia","arremessavel","area_m","recarga_turnos","observacoes","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"nome":{"type":"string"},"categoria":{"type":"string"},"dano":{"type":["integer","null"]},"protecao":{"type":["integer","null"]},"a_distancia":{"type":["boolean","null"]},"arremessavel":{"type":"boolean"},"area_m":{"type":["number","null"]},"recarga_turnos":{"type":["integer","null"]},"observacoes":{"type":["string","null"]},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false},
+    "item_ref":{"type":"object","required":["equipamento_id","quantidade"],"properties":{"equipamento_id":{"$ref":"#/$defs/id"},"quantidade":{"type":"integer","minimum":1}},"additionalProperties":false},
+    "kit":{"type":"object","required":["id","coluna","numero","itens","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"coluna":{"enum":["leve","pesado","atirador"]},"numero":{"type":"integer","minimum":1,"maximum":6},"itens":{"type":"array","minItems":1,"items":{"$ref":"#/$defs/item_ref"}},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false},
+    "acao":{"type":"object","required":["id","nome","descricao","teste","efeitos","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"nome":{"type":"string"},"descricao":{"type":"string"},"teste":{"type":["object","null"]},"efeitos":{"type":"object"},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false},
+    "dificuldade":{"type":"object","required":["id","nome","valor","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"nome":{"type":"string"},"valor":{"type":"integer"},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false},
+    "regra":{"type":"object","required":["id","titulo","texto","formula","valores","provisorio","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"titulo":{"type":"string"},"texto":{"type":"string"},"formula":{"type":["string","null"]},"valores":{},"provisorio":{"type":"boolean"},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false},
+    "ficha":{"type":"object","required":["id","nome","escolhas","atributos_calculados","defesa","texto_original"],"properties":{"id":{"$ref":"#/$defs/id"},"nome":{"type":"string"},"escolhas":{"type":"object"},"atributos_calculados":{"type":"object","required":["garra","manha","pulo","acaso"],"properties":{"garra":{"type":"integer"},"manha":{"type":"integer"},"pulo":{"type":"integer"},"acaso":{"type":"integer"}},"additionalProperties":false},"defesa":{"type":"integer"},"texto_original":{"$ref":"#/$defs/texto"}},"additionalProperties":false}
+  }
+}
