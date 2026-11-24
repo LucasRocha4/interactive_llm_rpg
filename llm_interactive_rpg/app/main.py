@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 import uuid
+from copy import deepcopy
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -14,9 +15,11 @@ try:
 except ImportError:
     genai = None
 
-from .pipeline.motor_bridge import despachar_para_motor, montar_pedido_motor
+from .pipeline.motor_bridge import despachar_para_motor, montar_pedido_motor, salvar_na_outbox
+from .pipeline.narrador_ia import narrar_resultado
 from .pipeline.parser_ia import criar_cena_atual, interpretar_acao
 from .motor.regras_engine import REGRAS_ROOT, MotorRegras
+from .pipeline.schemas import ResultadoMotor
 
 
 FICHA_PADRAO_ID = "bongo_chule"
@@ -78,7 +81,7 @@ def executar_turno(
     personagem: dict[str, object],
     cena: dict[str, object] | None = None,
     motor: MotorRegras | None = None,
-) -> None:
+) -> ResultadoMotor | None:
     if cena is None:
         cena = criar_cena_atual(personagem)
     if motor is None:
@@ -102,17 +105,24 @@ def executar_turno(
     )
     if intent.perguntas_pendentes:
         logging.warning(
-            "[STEP 3 - VALIDACAO] Ambiguidade encontrada; envio ao motor interrompido."
+            "[STEP 3 - VALIDACAO] Ambiguidade encontrada; motor informado para bloquear sem mutacao."
         )
-        for pergunta in intent.perguntas_pendentes:
-            print(f"Pergunta: {pergunta}")
-        return
 
     pedido = montar_pedido_motor(intent, requisicao_id)
-    resultado = despachar_para_motor(pedido, personagem, cena, motor)
-    print(json.dumps(resultado.model_dump(mode="json"), ensure_ascii=False, indent=2))
-    print("Personagem:", json.dumps(personagem, ensure_ascii=False))
-    print("Cena:", json.dumps(cena, ensure_ascii=False))
+    salvar_na_outbox(pedido)
+    personagem_candidato, cena_candidata = deepcopy((personagem, cena))
+    resultado = despachar_para_motor(pedido, personagem_candidato, cena_candidata, motor)
+    if resultado.sucesso is True:
+        personagem.clear()
+        personagem.update(personagem_candidato)
+        cena.clear()
+        cena.update(cena_candidata)
+    logging.info(
+        "[STEP 5 - NARRADOR] Resultado mecanico recebido: %s",
+        json.dumps(resultado.model_dump(mode="json"), ensure_ascii=False),
+    )
+    print(narrar_resultado(texto, resultado))
+    return resultado
 
 
 def main() -> None:

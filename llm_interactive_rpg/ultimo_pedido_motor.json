@@ -1,18 +1,22 @@
 {
-  "requisicao_id": "b67a0f7cf8c2",
-  "tipo": "mover",
-  "acao_id": null,
+  "requisicao_id": "c8a98f871c40",
+  "tipo": "atacar",
+  "acao_id": "golpear",
   "tecnica_id": null,
   "parametros": {
-    "alvo_id": "clareira",
-    "equipamento_id": null,
+    "alvo_id": "rato_01",
+    "equipamento_id": "machado_de_pedra",
+    "objeto_id": null,
     "quantidade": null,
     "distancia_m": null,
-    "tamanho_objeto": null
+    "tamanho_objeto": null,
+    "categoria_item": null
   },
   "teste": {
     "atributo_id": null,
+    "dificuldade": null,
     "vantagem": false,
     "desvantagem": false
-  }
+  },
+  "perguntas_pendentes": []
 }

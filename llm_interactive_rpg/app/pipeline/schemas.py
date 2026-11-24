@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -92,6 +92,11 @@ class ResultadoRolagem(ModeloEstrito):
     mancada: bool = False
 
 
+class MotivoBloqueio(ModeloEstrito):
+    codigo: str
+    detalhe: str
+
+
 class ResultadoMotor(ModeloEstrito):
     status: Literal["executado", "aguardando_esclarecimento", "bloqueado_condicao"]
     sucesso: bool | None = None
@@ -101,3 +106,9 @@ class ResultadoMotor(ModeloEstrito):
     dano_final: int = 0
     efeitos: list[str] = Field(default_factory=list)
     alteracoes_personagem: list[str] = Field(default_factory=list)
+    motivo_bloqueio: MotivoBloqueio | None = None
+    acao_executada: str = ""
+    rolagens: list[dict[str, Any]] = Field(default_factory=list)
+    impacto_mecanico: dict[str, Any] = Field(default_factory=dict)
+    fatos_para_narracao: list[str] = Field(default_factory=list)
+    estado_atualizado: dict[str, Any] = Field(default_factory=dict)

@@ -292,9 +292,13 @@ class TestMotorRegras(unittest.TestCase):
         intent = IntentJogador(intencao="atacar", alvo=AlvoJogador(tipo="inimigo", id="rato"), equipamento_id="machado_de_pedra")
         self.motor.rng = DadosFixos(20)
         saida = io.StringIO()
-        with patch("llm_interactive_rpg.app.main.interpretar_acao", return_value=intent), redirect_stdout(saida):
+        with (
+            patch("llm_interactive_rpg.app.main.interpretar_acao", return_value=intent),
+            patch("llm_interactive_rpg.app.main.narrar_resultado", return_value="O machado acerta: 7 de dano."),
+            redirect_stdout(saida),
+        ):
             executar_turno("ataco o rato", self.personagem, self.cena, self.motor)
-        self.assertIn('"dano_final": 7', saida.getvalue())
+        self.assertEqual(saida.getvalue().strip(), "O machado acerta: 7 de dano.")
         self.assertEqual(self.cena["inimigos"][0]["coracoes"]["atual"], 13)
 
     def test_objeto_da_cena_e_alvo_distintos(self):

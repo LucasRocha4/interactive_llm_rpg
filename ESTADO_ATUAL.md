@@ -10,9 +10,13 @@ O pipeline de teste funciona no terminal:
 3. A bridge converte a intenção em `PedidoMotor`. Perguntas pendentes impedem a
    execução até que a ação seja esclarecida.
 4. O motor Python consulta as regras, executa rolagens e aplica as alterações.
-5. O terminal mostra o resultado estruturado, o personagem e a cena.
+5. Uma segunda chamada ao Gemini narra o resultado já validado, em texto puro.
+6. O terminal mostra a narração e registra internamente o envelope mecânico completo.
 
-O Gemini não escolhe dificuldades numéricas, não rola dados e não calcula dano.
+A primeira LLM não escolhe dificuldades numéricas, não rola dados e não calcula dano.
+A segunda LLM também não possui autoridade mecânica: não recalcula resultados, não
+inventa entidades ou fatos e não altera personagem nem cena. Em bloqueios, ela descreve
+apenas a restrição; em esclarecimentos, faz somente a pergunta necessária.
 O motor aceita um gerador aleatório injetável para testes reproduzíveis. Os
 arquivos oficiais de regras ficam em `llm_interactive_rpg/app/regras/`.
 
@@ -96,10 +100,12 @@ Ataco o rato selvagem com meu machado de pedra.
 sair
 ```
 
-Confira `status`, `rolagem`, `sucesso`, `dano_final`, `Personagem` e `Cena` na
-saída. A interpretação pode solicitar esclarecimentos e o resultado do dado é
+Confira a narração apresentada no terminal; detalhes como `status`, `rolagem`,
+`sucesso`, `dano_final`, personagem e cena permanecem no resultado mecânico interno
+e nos logs. A interpretação pode solicitar esclarecimentos e o resultado do dado é
 aleatório. Uma chamada real ao Gemini requer acesso à API e uma chave válida;
-os testes automáticos usam resposta simulada.
+os testes automáticos usam respostas simuladas. A segunda chamada tenta novamente
+uma vez em caso de falha; depois usa um fallback determinístico baseado no motor.
 
 ## Como testar com Docker
 

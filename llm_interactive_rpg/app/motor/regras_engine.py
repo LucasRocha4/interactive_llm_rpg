@@ -6,7 +6,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
-from ..pipeline.schemas import PedidoMotor, ResultadoMotor, ResultadoRolagem
+from ..pipeline.schemas import MotivoBloqueio, PedidoMotor, ResultadoMotor, ResultadoRolagem
 
 
 REGRAS_ROOT = Path(__file__).resolve().parents[2] / "app" / "regras"
@@ -46,6 +46,7 @@ class MotorRegras:
         self.tecnicas = {x["id"]: x for x in self._carregar("tecnicas")}
         self.efeitos = {x["id"]: x for x in self._carregar("efeitos")}
         self.tabela_itens = self._carregar("tabela_itens")
+        self._rolagens_da_execucao: list[ResultadoRolagem] | None = None
 
     def _carregar(self, nome: str) -> Any:
         with (self.regras_root / f"{nome}.json").open(encoding="utf-8") as arquivo:
@@ -61,11 +62,14 @@ class MotorRegras:
         gerador = rng if rng is not None else self.rng
         dados = [gerador.randint(1, 20) for _ in range(2 if vantagem != desvantagem else 1)]
         escolhido = max(dados) if vantagem and not desvantagem else min(dados)
-        return ResultadoRolagem(
+        resultado = ResultadoRolagem(
             executada=True, dados_rolados=dados, dado_escolhido=escolhido,
             modificador=atributo_valor, total=escolhido + atributo_valor,
             alvo_numero=alvo_numero, critico=escolhido == 20, mancada=escolhido == 1,
         )
+        if self._rolagens_da_execucao is not None:
+            self._rolagens_da_execucao.append(resultado)
+        return resultado
 
     @staticmethod
     def _sucesso(rolagem: ResultadoRolagem) -> bool:
@@ -321,6 +325,11 @@ class MotorRegras:
             ultimo.dano_final = sum(item.dano_final for item in resultados)
             ultimo.efeitos = efeitos
             ultimo.alteracoes_personagem = [alteracao for item in resultados for alteracao in item.alteracoes_personagem]
+            ultimo.rolagens = [
+                item.rolagem.model_dump(mode="json")
+                for item in resultados
+                if item.rolagem is not None
+            ]
             return ultimo
         if pedido.tipo == "atacar" or acao in ("golpear", "arremessar"):
             return self._ataque(pedido, personagem, cena)
@@ -549,10 +558,114 @@ class MotorRegras:
             cena["encerrada"] = True
             personagem.setdefault("usos_tecnicas", {})["cena"] = []
 
+    @staticmethod
+    def _codigo_bloqueio(detalhe: str) -> str:
+        texto = detalhe.lower()
+        if "alvo" in texto:
+            return "ALVO_INVALIDO"
+        if "tecnica" in texto:
+            return "TECNICA_INVALIDA"
+        if (
+            "quantidade insuficiente" in texto
+            or "material" in texto
+            or ("pedra" in texto and "insuficiente" in texto)
+        ):
+            return "RECURSO_INSUFICIENTE"
+        if "equip" in texto or "arma" in texto or "recarreg" in texto:
+            return "PRE_REQUISITO_INVALIDO"
+        return "PEDIDO_INVALIDO"
+
+    @staticmethod
+    def _diff_dict(antes: dict[str, Any], depois: dict[str, Any]) -> dict[str, Any]:
+        diferencas: dict[str, Any] = {}
+        for chave in sorted(set(antes) | set(depois)):
+            valor_antes = antes.get(chave)
+            valor_depois = depois.get(chave)
+            if valor_antes != valor_depois:
+                diferencas[chave] = {"antes": valor_antes, "depois": valor_depois}
+        return diferencas
+
+    @staticmethod
+    def _acao_do_pedido(pedido: PedidoMotor) -> str:
+        return pedido.acao_id or pedido.tecnica_id or pedido.tipo
+
+    def _finalizar_resultado(
+        self,
+        resultado: ResultadoMotor,
+        pedido: PedidoMotor,
+        personagem_antes: dict[str, Any],
+        cena_antes: dict[str, Any],
+        personagem_depois: dict[str, Any],
+        cena_depois: dict[str, Any],
+    ) -> ResultadoMotor:
+        bloqueado = resultado.status != "executado" or (
+            resultado.sucesso is None and resultado.motivo_bloqueio is not None
+        )
+        if bloqueado:
+            resultado.sucesso = False
+            if resultado.motivo_bloqueio is None:
+                detalhe = resultado.efeitos[0] if resultado.efeitos else "Acao bloqueada pelas regras."
+                codigo = "ESCLARECIMENTO_NECESSARIO" if resultado.status == "aguardando_esclarecimento" else self._codigo_bloqueio(detalhe)
+                resultado.motivo_bloqueio = MotivoBloqueio(codigo=codigo, detalhe=detalhe)
+        resultado.acao_executada = self._acao_do_pedido(pedido)
+        if self._rolagens_da_execucao and not resultado.rolagens:
+            resultado.rolagens = [
+                rolagem.model_dump(mode="json") for rolagem in self._rolagens_da_execucao
+            ]
+        elif not resultado.rolagens and resultado.rolagem is not None:
+            resultado.rolagens = [resultado.rolagem.model_dump(mode="json")]
+        for rolagem in resultado.rolagens:
+            rolagem.setdefault("valor_natural", rolagem.get("dado_escolhido"))
+            rolagem.setdefault("modificadores", rolagem.get("modificador", 0))
+            rolagem.setdefault("dt", rolagem.get("alvo_numero"))
+            rolagem.setdefault("resultado", "sucesso" if resultado.sucesso else "falha")
+        alteracoes_personagem = self._diff_dict(personagem_antes, personagem_depois)
+        alteracoes_cena = self._diff_dict(cena_antes, cena_depois)
+        condicoes_antes = set(personagem_antes.get("condicoes", []))
+        condicoes_depois = set(personagem_depois.get("condicoes", []))
+        inventario_antes = personagem_antes.get("inventario", {})
+        inventario_depois = personagem_depois.get("inventario", {})
+        recursos_consumidos = {
+            item: quantidade
+            - inventario_depois.get(item, 0)
+            for item, quantidade in inventario_antes.items()
+            if isinstance(quantidade, int) and quantidade > inventario_depois.get(item, 0)
+        }
+        coracoes_antes = personagem_antes.get("coracoes", {}).get("atual", 0)
+        coracoes_depois = personagem_depois.get("coracoes", {}).get("atual", 0)
+        resultado.impacto_mecanico = {
+            "recursos_consumidos": recursos_consumidos,
+            "dano_bruto": resultado.dano_bruto,
+            "protecao_aplicada": resultado.protecao_aplicada,
+            "dano_final": resultado.dano_final,
+            "cura_aplicada": max(0, coracoes_depois - coracoes_antes),
+            "alteracoes_personagem": list(resultado.alteracoes_personagem),
+            "efeitos_aplicados": sorted(condicoes_depois - condicoes_antes),
+            "efeitos_expirados": sorted(condicoes_antes - condicoes_depois),
+            "estado_alterado": alteracoes_personagem or alteracoes_cena,
+        }
+        fatos = list(resultado.efeitos)
+        if resultado.rolagem is not None and resultado.rolagem.total is not None:
+            fatos.append(f"Rolagem total {resultado.rolagem.total} contra alvo {resultado.rolagem.alvo_numero}: {'sucesso' if resultado.sucesso else 'falha'}.")
+        if resultado.dano_final:
+            fatos.append(f"Dano final aplicado: {resultado.dano_final}.")
+        fatos.extend(resultado.alteracoes_personagem)
+        resultado.fatos_para_narracao = list(dict.fromkeys(fatos))
+        resultado.estado_atualizado = {
+            "personagem": deepcopy(personagem_depois),
+            "cena": deepcopy(cena_depois),
+        }
+        return resultado
+
     def executar(self, pedido: PedidoMotor, personagem: dict[str, Any], contexto_cena: dict[str, Any] | None = None) -> ResultadoMotor:
-        if pedido.perguntas_pendentes:
-            return ResultadoMotor(status="aguardando_esclarecimento", efeitos=pedido.perguntas_pendentes)
         cena_original = contexto_cena if contexto_cena is not None else {}
+        personagem_antes, cena_antes = deepcopy((personagem, cena_original))
+        self._rolagens_da_execucao = None
+        if pedido.perguntas_pendentes:
+            resultado = ResultadoMotor(status="aguardando_esclarecimento", efeitos=pedido.perguntas_pendentes)
+            return self._finalizar_resultado(resultado, pedido, personagem_antes, cena_antes, personagem, cena_original)
+
+        self._rolagens_da_execucao = []
         personagem_copia, cena = deepcopy((personagem, cena_original))
         estado_rng = self.rng.getstate()
         try:
@@ -576,7 +689,25 @@ class MotorRegras:
                 _sincronizar(cena_original, cena)
             elif "morto" in personagem_copia.get("condicoes", []) and "morto" not in personagem.get("condicoes", []):
                 _sincronizar(personagem, personagem_copia)
-            return resultado
+            finalizado = self._finalizar_resultado(
+                resultado, pedido, personagem_antes, cena_antes, personagem, cena_original
+            )
+            self._rolagens_da_execucao = None
+            return finalizado
         except EsclarecimentoNecessario as erro:
             self.rng.setstate(estado_rng)
-            return ResultadoMotor(status="aguardando_esclarecimento", efeitos=[str(erro)])
+            detalhe = str(erro)
+            resultado = ResultadoMotor(
+                status="aguardando_esclarecimento",
+                sucesso=False,
+                efeitos=[detalhe],
+                motivo_bloqueio=MotivoBloqueio(
+                    codigo=self._codigo_bloqueio(detalhe),
+                    detalhe=detalhe,
+                ),
+            )
+            finalizado = self._finalizar_resultado(
+                resultado, pedido, personagem_antes, cena_antes, personagem, cena_original
+            )
+            self._rolagens_da_execucao = None
+            return finalizado
