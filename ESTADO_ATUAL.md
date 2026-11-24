@@ -14,12 +14,12 @@ O pipeline de teste funciona no terminal:
 
 O Gemini não escolhe dificuldades numéricas, não rola dados e não calcula dano.
 O motor aceita um gerador aleatório injetável para testes reproduzíveis. Os
-arquivos oficiais de regras ficam em `llm_interactive_rpg/config/regras/`.
+arquivos oficiais de regras ficam em `llm_interactive_rpg/app/regras/`.
 
 ### Ficha e cena de teste
 
 - A ficha padrão é **Bongo "Chulé"**, de ID `bongo_chule`, carregada de
-  `llm_interactive_rpg/config/regras/exemplos_de_ficha.json`.
+  `llm_interactive_rpg/app/regras/exemplos_de_ficha.json`.
 - A ficha começa com 6 corações, infecção 0, machado de pedra e a técnica
   Bater no Peito. A cena simulada contém um rato e uma cobra.
 - Personagem e cena são mantidos em memória durante a sessão. Ao reiniciar,
@@ -60,7 +60,7 @@ python -m pip install -r requirements.txt
 
 ```bash
 python -m unittest discover -s tests -v
-python llm_interactive_rpg/config/regras/validar.py
+python llm_interactive_rpg/app/regras/validar.py
 ```
 
 O primeiro comando deve terminar com `OK`; o segundo, com
@@ -109,7 +109,7 @@ construa a imagem e execute os testes:
 ```bash
 docker compose build
 docker compose run --rm --no-deps web python -m unittest discover -s tests -v
-docker compose run --rm --no-deps web python llm_interactive_rpg/config/regras/validar.py
+docker compose run --rm --no-deps web python llm_interactive_rpg/app/regras/validar.py
 ```
 
 Para executar o pipeline interativo:

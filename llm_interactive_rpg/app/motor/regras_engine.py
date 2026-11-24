@@ -9,7 +9,7 @@ from typing import Any
 from ..pipeline.schemas import PedidoMotor, ResultadoMotor, ResultadoRolagem
 
 
-REGRAS_ROOT = Path(__file__).resolve().parents[2] / "config" / "regras"
+REGRAS_ROOT = Path(__file__).resolve().parents[2] / "app" / "regras"
 
 
 class EsclarecimentoNecessario(ValueError):

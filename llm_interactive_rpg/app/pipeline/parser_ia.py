@@ -15,7 +15,7 @@ from .schemas import IntentJogador
 
 
 LOGGER = logging.getLogger("rpg.interpreter")
-REGRAS_ROOT = Path(__file__).resolve().parents[2] / "config" / "regras"
+REGRAS_ROOT = Path(__file__).resolve().parents[2] / "app" / "regras"
 
 
 def carregar_ids_validos() -> dict[str, list[str]]:

@@ -129,6 +129,27 @@ def validate() -> dict[str, int]:
     reference(example["escolhas"]["defeito_id"], "defeitos", "exemplo.escolhas.defeito_id")
     reference(example["escolhas"]["equipamento_id"], "equipamentos", "exemplo.escolhas.equipamento_id")
 
+    effects = load("efeitos")
+    if not isinstance(effects, list):
+        fail("efeitos: deve ser uma lista")
+    effect_ids = set()
+    for effect in effects:
+        effect_id = effect["id"]
+        if effect_id in effect_ids or not effect["descricao"]:
+            fail(f"efeito invalido ou repetido: {effect_id}")
+        effect_ids.add(effect_id)
+        duration = effect["duracao_turnos"]
+        if duration is not None and (not isinstance(duration, int) or duration < 1):
+            fail(f"{effect_id}: duracao invalida")
+    item_table = load("tabela_itens")
+    if not isinstance(item_table, dict) or not item_table:
+        fail("tabela_itens: categorias ausentes")
+    for category, items in item_table.items():
+        if not isinstance(items, list) or not items:
+            fail(f"tabela_itens/{category}: itens ausentes")
+        for item in items:
+            reference(item, "equipamentos", f"tabela_itens/{category}")
+
     return {name: len(records) for name, records in data.items()}
 
 
