@@ -1,135 +1,94 @@
 # Estado atual do projeto
 
-## O que foi implementado
+O projeto é um RPG para jogar pelo terminal, com o motor de regras em Python e
+interpretação/narração pelo Gemini. O Django guarda campanhas, personagens,
+NPCs e itens. As regras de atributos, pelagens, ofícios, defeitos e equipamentos
+ficam nos JSONs de `llm_interactive_rpg/app/regras/`.
 
-O pipeline de teste funciona no terminal:
+## Preparar o ambiente
 
-1. O jogador informa uma ação em português.
-2. O Gemini interpreta a intenção, os IDs da cena e, quando necessário, a
-   dificuldade qualitativa: `facil`, `media`, `dificil` ou `absurda`.
-3. A bridge converte a intenção em `PedidoMotor`. Perguntas pendentes impedem a
-   execução até que a ação seja esclarecida.
-4. O motor Python consulta as regras, executa rolagens e aplica as alterações.
-5. Uma segunda chamada ao Gemini narra o resultado já validado, em texto puro.
-6. O terminal mostra a narração e registra internamente o envelope mecânico completo.
+Na raiz do repositório, instale as dependências no ambiente virtual:
 
-A primeira LLM não escolhe dificuldades numéricas, não rola dados e não calcula dano.
-A segunda LLM também não possui autoridade mecânica: não recalcula resultados, não
-inventa entidades ou fatos e não altera personagem nem cena. Em bloqueios, ela descreve
-apenas a restrição; em esclarecimentos, faz somente a pergunta necessária.
-O motor aceita um gerador aleatório injetável para testes reproduzíveis. Os
-arquivos oficiais de regras ficam em `llm_interactive_rpg/app/regras/`.
-
-### Ficha e cena de teste
-
-- A ficha padrão é **Bongo "Chulé"**, de ID `bongo_chule`, carregada de
-  `llm_interactive_rpg/app/regras/exemplos_de_ficha.json`.
-- A ficha começa com 6 corações, infecção 0, machado de pedra e a técnica
-  Bater no Peito. A cena simulada contém um rato e uma cobra.
-- Personagem e cena são mantidos em memória durante a sessão. Ao reiniciar,
-  voltam ao estado inicial; a ficha de origem não é alterada.
-- O inventário é um mapa de quantidades, separado da lista de equipamentos.
-  Informações necessárias ausentes interrompem a ação com esclarecimento.
-
-### Motor de regras
-
-- Dificuldades da tabela: Fácil 8, Média 12, Difícil 16 e Absurda 20.
-- Testes usam `d20 + atributo`; vantagem e desvantagem se cancelam. Um 20
-  natural garante sucesso e um 1 natural é uma mancada.
-- Ataques usam a Defesa do alvo. O dano é fixo, pode ser dobrado por crítico e
-  é reduzido pela proteção sem ficar negativo. Estilingues consomem pedras;
-  recolher uma pedra exige Manha contra Fácil.
-- Com 0 corações, o personagem fica Caído. Pode tentar levantar, usar banana
-  curativa ou ativar Cura Dramática quando disponível; outras ações são
-  bloqueadas. Três falhas ao levantar causam morte. Infecção 5 causa morte e
-  zumbificação.
-- As ações e técnicas dos JSONs possuem tratamento no motor, incluindo custos,
-  efeitos e limites aplicáveis; ações que exigem contexto ausente solicitam
-  esclarecimento.
-- Turnos, efeitos e recargas avançam com ações executadas. O encerramento da
-  cena depende do objetivo e de uma abertura de transição; dormir pode avançar
-  o dia, desde que não haja evento pendente.
-
-## Como testar localmente
-
-Na raiz do projeto, crie e ative o ambiente virtual se necessário:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r requirements.txt
+```powershell
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-### Testes automáticos, sem Gemini
+Configure o arquivo `.env` na raiz com `DJANGO_SECRET_KEY` e `GEMINI_API_KEY`.
+`DATABASE_URL` pode ficar como `sqlite:///db.sqlite3`, que usa o SQLite local.
+Não compartilhe nem faça commit do `.env`.
 
-```bash
-python -m unittest discover -s tests -v
-python llm_interactive_rpg/app/regras/validar.py
-```
++## Teste simples: cadastrar e iniciar uma campanha
 
-O primeiro comando deve terminar com `OK`; o segundo, com
-`OK: validação concluída`. Para executar somente os testes da ficha padrão:
+1. Crie as tabelas e, se ainda não existir, um usuário administrador:
 
-```bash
-python -m unittest discover -s tests -p 'test_ficha_padrao.py' -v
-```
+   ```powershell
+   .\.venv\Scripts\python.exe llm_interactive_rpg\manage.py migrate
+   .\.venv\Scripts\python.exe llm_interactive_rpg\manage.py createsuperuser
+   ```
 
-### Teste interativo com Gemini
+   Ao final de cada `migrate`, o Django garante que exista uma campanha padrão
+   com a ficha `bongo_chule`. A ficha é montada a partir de
+   `app/regras/exemplos_de_ficha.json`. Se a campanha ou a ficha forem apagadas,
+   o próximo `migrate` as cria novamente, sem duplicar os registros existentes.
+   O dono técnico da campanha é `campanha_demo_sistema`; o login do painel é a
+   conta separada criada por `createsuperuser`.
 
-Se ainda não existir, crie `.env` a partir do exemplo, sem sobrescrever um
-arquivo já configurado:
+2. Inicie o painel administrativo:
 
-```bash
-cp -n .env.example .env
-```
+   ```powershell
+   .\.venv\Scripts\python.exe llm_interactive_rpg\manage.py runserver
+   ```
 
-Edite `.env` e preencha `GEMINI_API_KEY`. Para usar também o servidor Django,
-preencha `DJANGO_SECRET_KEY` com uma chave própria. Não compartilhe o arquivo.
-Execute:
+3. Abra <http://127.0.0.1:8000/admin/> e veja a campanha
+   **Campanha padrão — ficha bongo_chule** e o personagem Bongo "Chulé". Se
+   quiser criar a sua própria, use **Campaigns → Add** e depois crie um
+   personagem ligado a ela. Para um personagem válido de exemplo, use pelagem
+   `marrom`, ofício `lutador`, defeito `cheiro_de_pantano` e equipamento
+   `machado_de_pedra`.
 
-```bash
-python main.py
-```
+4. Abra outro terminal na raiz e inicie o jogo:
 
-Confirme a mensagem de seleção da ficha `bongo_chule`. No prompt `Jogador>`,
-experimente:
-
-```text
-Vou recolher uma pedra do chão.
-Ataco o rato selvagem com meu machado de pedra.
+   ```powershell
+   .\.venv\Scripts\python.exe main.py
+   ```
 sair
+   Confira se aparece `Campanha e ficha carregadas do banco`. Se aparecer
+   `usando a ficha de demonstração`, verifique se a campanha está ativa e tem
+   personagem. Se houver uma campanha própria ativa com personagem, ela tem
+   prioridade sobre a campanha padrão. Se não houver, o programa usa Bongo.
+
+5. Digite uma ação para testar uma rodada, por exemplo:
+
+   ```text
+   Ataco o Rato Selvagem com meu machado de pedra.
+   ```
+
+   O Gemini interpreta a ação, o motor aplica as regras e o narrador mostra o
+   resultado. Digite `sair` para encerrar.
+
+## O que este teste cobre
+
+O programa carrega a campanha, o personagem e os NPCs do banco e usa esses dados
+no contexto enviado ao Gemini. A campanha demo serve para testar sem cadastro
+manual. O cenário inicial ainda usa elementos fixos do exemplo do jogo. Ainda
+não há geração automática de uma jornada completa com missões, cenas e inimigos
+próprios a partir da descrição da campanha.
+
+Também existe um teste isolado que cria dados temporários e pede ao Gemini uma
+interpretação deles. Com uma `GEMINI_API_KEY` configurada, rode:
+
+```powershell
+.\.venv\Scripts\python.exe llm_interactive_rpg\manage.py test app.pipeline.test_gemini_dados_banco --verbosity 2
 ```
 
-Confira a narração apresentada no terminal; detalhes como `status`, `rolagem`,
-`sucesso`, `dano_final`, personagem e cena permanecem no resultado mecânico interno
-e nos logs. A interpretação pode solicitar esclarecimentos e o resultado do dado é
-aleatório. Uma chamada real ao Gemini requer acesso à API e uma chave válida;
-os testes automáticos usam respostas simuladas. A segunda chamada tenta novamente
-uma vez em caso de falha; depois usa um fallback determinístico baseado no motor.
+Esse teste chama a API real. Sem a chave, ele é ignorado com uma mensagem
+explicativa. Para rodar os testes automáticos do projeto:
 
-## Como testar com Docker
-
-O Dockerfile já inclui dependências, código e regras. Com `.env` configurado,
-construa a imagem e execute os testes:
-
-```bash
-docker compose build
-docker compose run --rm --no-deps web python -m unittest discover -s tests -v
-docker compose run --rm --no-deps web python llm_interactive_rpg/app/regras/validar.py
+```powershell
+.\.venv\Scripts\python.exe llm_interactive_rpg\manage.py test tests --verbosity 2
+.\.venv\Scripts\python.exe llm_interactive_rpg\app\regras\validar.py
 ```
 
-Para executar o pipeline interativo:
-
-```bash
-docker compose run --rm --no-deps web python main.py
-```
-
-O comando padrão `docker compose up --build` inicia o servidor Django em
-`http://localhost:8000`; o jogo de teste é o comando interativo acima, não uma
-interface web. A configuração Docker é voltada ao desenvolvimento.
-
-## Limitações atuais
-
-Não há persistência da partida entre execuções, simulação autônoma de inimigos
-nem geração automática de próximas cenas. A cena e os inimigos são exemplos;
-algumas ações dependem de informações adicionais no contexto.
+Os testes automáticos comuns usam o Gemini simulado; somente o teste isolado
+acima chama a API real.

@@ -81,6 +81,7 @@ def executar_turno(
     personagem: dict[str, object],
     cena: dict[str, object] | None = None,
     motor: MotorRegras | None = None,
+    interpretador=None,
 ) -> ResultadoMotor | None:
     if cena is None:
         cena = criar_cena_atual(personagem)
@@ -94,7 +95,8 @@ def executar_turno(
     )
 
     try:
-        intent = interpretar_acao(texto, personagem, cena)
+        interpretar = interpretador or interpretar_acao
+        intent = interpretar(texto, personagem, cena)
     except Exception as error:
         logging.error("[STEP 2 - GEMINI PARSER] Falha ao interpretar acao: %s", error)
         return
@@ -138,10 +140,63 @@ def main() -> None:
         logging.error("GEMINI_API_KEY nao configurada. Defina a variavel de ambiente antes de iniciar.")
         return
 
+    app_root = project_root / "llm_interactive_rpg"
+    if str(app_root) not in sys.path:
+        sys.path.insert(0, str(app_root))
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+    try:
+        import django
+
+        django.setup()
+    except Exception as error:
+        logging.error("Falha ao inicializar Django e banco: %s", error)
+        return
+
     motor = MotorRegras()
-    personagem = personagem_simulado(motor)
-    logging.info("Ficha de teste selecionada: %s (%s).", personagem["nome"], personagem["id"])
-    cena = criar_cena_atual(personagem)
+    ficha_banco = campanha_banco = None
+    try:
+        from app.models import Character
+        from .pipeline.servico_gemini import montar_contexto_do_banco
+
+        fichas_ativas = Character.objects.filter(campanha__ativa=True).select_related("campanha")
+        ficha_banco = (
+            fichas_ativas.exclude(campanha__dono__username="campanha_demo_sistema")
+            .order_by("-pk")
+            .first()
+        )
+        if ficha_banco is None:
+            ficha_banco = (
+                fichas_ativas.filter(campanha__dono__username="campanha_demo_sistema")
+                .order_by("-pk")
+                .first()
+            )
+        if ficha_banco is not None:
+            campanha_banco = ficha_banco.campanha
+            personagem = ficha_banco.para_estado_motor()
+            cena = montar_contexto_do_banco(campanha_banco, ficha_banco, personagem)
+            logging.info(
+                "Campanha e ficha carregadas do banco: %s / %s.",
+                campanha_banco.nome,
+                personagem["nome"],
+            )
+        else:
+            personagem = personagem_simulado(motor)
+            cena = criar_cena_atual(personagem)
+            logging.info("Nenhuma ficha ativa no banco; usando a ficha de demonstração.")
+    except Exception as error:
+        logging.warning("Banco indisponível; usando a ficha de demonstração: %s", error)
+        personagem = personagem_simulado(motor)
+        cena = criar_cena_atual(personagem)
+
+    interpretador = None
+    if campanha_banco is not None and ficha_banco is not None:
+        from .pipeline.servico_gemini import interpretar_acao_da_campanha, persistir_npcs_da_cena
+
+        def interpretador(texto: str, estado: dict[str, object], contexto: dict[str, object]):
+            return interpretar_acao_da_campanha(
+                texto, campanha_banco, ficha_banco, estado, contexto
+            )
+
     while True:
         try:
             texto = input("Jogador> ").strip()
@@ -155,7 +210,11 @@ def main() -> None:
             logging.info("Comando sair recebido. Encerrando limpo.")
             break
 
-        executar_turno(texto, personagem, cena, motor)
+        resultado = executar_turno(texto, personagem, cena, motor, interpretador)
+        if resultado is not None and resultado.sucesso is True and ficha_banco is not None:
+            ficha_banco.atualizar_do_estado_motor(personagem)
+            ficha_banco.save()
+            persistir_npcs_da_cena(campanha_banco, cena)
 
 
 if __name__ == "__main__":

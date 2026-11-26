@@ -1,11 +1,11 @@
 {
-  "requisicao_id": "c8a98f871c40",
-  "tipo": "atacar",
-  "acao_id": "golpear",
+  "requisicao_id": "f8554ed9a41b",
+  "tipo": "outro",
+  "acao_id": null,
   "tecnica_id": null,
   "parametros": {
-    "alvo_id": "rato_01",
-    "equipamento_id": "machado_de_pedra",
+    "alvo_id": null,
+    "equipamento_id": null,
     "objeto_id": null,
     "quantidade": null,
     "distancia_m": null,
