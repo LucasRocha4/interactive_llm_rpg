@@ -36,7 +36,7 @@ Não compartilhe nem faça commit do `.env`.
 
 2. Inicie o painel administrativo:
 
-   ```powershell
+   ```powershellg
    .\.venv\Scripts\python.exe llm_interactive_rpg\manage.py runserver
    ```
 
