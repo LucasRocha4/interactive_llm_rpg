@@ -1,13 +1,13 @@
 {
-  "requisicao_id": "f8554ed9a41b",
-  "tipo": "outro",
+  "requisicao_id": "2aa8550c2033",
+  "tipo": "atacar",
   "acao_id": null,
   "tecnica_id": null,
   "parametros": {
-    "alvo_id": null,
-    "equipamento_id": null,
+    "alvo_id": "rato",
+    "equipamento_id": "machado_de_pedra",
     "objeto_id": null,
-    "quantidade": null,
+    "quantidade": 1,
     "distancia_m": null,
     "tamanho_objeto": null,
     "categoria_item": null

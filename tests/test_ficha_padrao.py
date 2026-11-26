@@ -70,8 +70,10 @@ class TestFichaPadrao(unittest.TestCase):
             patch("builtins.input", side_effect=["observar", "sair"]),
             patch("llm_interactive_rpg.app.main.configurar_logs"),
             patch("llm_interactive_rpg.app.main.executar_turno") as executar,
+            patch("django.db.models.query.QuerySet.first", return_value=None) as buscar,
         ):
             main()
+        self.assertEqual(buscar.call_count, 2)
         personagem = executar.call_args.args[1]
         self.assertEqual(personagem["id"], FICHA_PADRAO_ID)
         self.assertEqual(personagem["nome"], self.ficha["nome"])

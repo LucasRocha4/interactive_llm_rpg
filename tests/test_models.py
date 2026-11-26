@@ -1,8 +1,11 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from app.models import Campaign, Character, Item, NPC
+from llm_interactive_rpg.app.main import main
 
 
 class TestModels(TestCase):
@@ -82,3 +85,29 @@ class TestModels(TestCase):
         )
         self.assertIsNone(npc.defesa)
         self.assertIsNone(npc.coracoes)
+
+    def test_terminal_prioriza_ficha_da_campanha_propria(self):
+        ficha_demo = Character.objects.get(campanha__dono__username="campanha_demo_sistema")
+        ficha_propria = Character.objects.create(
+            campanha=self.campanha,
+            nome="Ficha própria",
+            pelagem_id="marrom",
+            oficio_id="lutador",
+            defeito_id="cheiro_de_pantano",
+        )
+        with (
+            patch.dict("os.environ", {"GEMINI_API_KEY": "teste"}),
+            patch("builtins.input", side_effect=["observar", "sair", "observar", "sair"]),
+            patch("llm_interactive_rpg.app.main.configurar_logs"),
+            patch("llm_interactive_rpg.app.main.executar_turno") as executar,
+        ):
+            main()
+            self.campanha.ativa = False
+            self.campanha.save()
+            main()
+
+        self.assertEqual(executar.call_count, 2)
+        self.assertEqual(executar.call_args_list[0].args[1]["id"], str(ficha_propria.pk))
+        self.assertEqual(executar.call_args_list[1].args[1]["id"], str(ficha_demo.pk))
+        self.assertIsNotNone(executar.call_args_list[0].args[4])
+        self.assertIsNotNone(executar.call_args_list[1].args[4])
