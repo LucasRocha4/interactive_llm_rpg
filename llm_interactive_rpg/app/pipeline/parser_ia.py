@@ -11,6 +11,7 @@ from google.genai import types
 from dotenv import load_dotenv
 from pydantic import ValidationError
 
+from .modelos_gemini import MODELO_PARSER_PADRAO, gerar_com_fallback
 from .schemas import IntentJogador
 
 
@@ -59,7 +60,13 @@ def criar_cena_atual(personagem: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def interpretar_acao(texto: str, personagem: dict[str, Any], cena: dict[str, Any] | None = None) -> IntentJogador:
+def interpretar_acao(
+    texto: str,
+    personagem: dict[str, Any],
+    cena: dict[str, Any] | None = None,
+    *,
+    cliente: Any | None = None,
+) -> IntentJogador:
     project_root = Path(__file__).resolve().parents[3]
     load_dotenv(project_root / ".env")
     api_key = os.getenv("GEMINI_API_KEY")
@@ -83,17 +90,22 @@ def interpretar_acao(texto: str, personagem: dict[str, Any], cena: dict[str, Any
         f"cena_atual={json.dumps({**cena, 'personagem': personagem}, ensure_ascii=False)}"
     )
 
-    client = genai.Client(api_key=api_key)
+    client = cliente if cliente is not None else genai.Client(api_key=api_key)
     config = types.GenerateContentConfig(
         temperature=0.1,
         system_instruction=system_instruction,
         response_mime_type="application/json",
         response_schema=IntentJogador,
     )
-    response = client.models.generate_content(
-        model="gemini-3.5-flash-lite",
-        contents=texto,
-        config=config,
+    response = gerar_com_fallback(
+        client,
+        os.getenv("GEMINI_PARSER_MODEL", MODELO_PARSER_PADRAO),
+        lambda modelo: client.models.generate_content(
+            model=modelo,
+            contents=texto,
+            config=config,
+        ),
+        priorizar_economia=True,
     )
 
     try:

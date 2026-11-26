@@ -1,11 +1,11 @@
 {
-  "requisicao_id": "c8a98f871c40",
-  "tipo": "atacar",
-  "acao_id": "golpear",
+  "requisicao_id": "fdc7fec37ab0",
+  "tipo": "investigar",
+  "acao_id": null,
   "tecnica_id": null,
   "parametros": {
-    "alvo_id": "rato_01",
-    "equipamento_id": "machado_de_pedra",
+    "alvo_id": null,
+    "equipamento_id": null,
     "objeto_id": null,
     "quantidade": null,
     "distancia_m": null,
@@ -14,7 +14,7 @@
   },
   "teste": {
     "atributo_id": null,
-    "dificuldade": null,
+    "dificuldade": "facil",
     "vantagem": false,
     "desvantagem": false
   },

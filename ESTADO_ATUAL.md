@@ -83,8 +83,11 @@ arquivo já configurado:
 cp -n .env.example .env
 ```
 
-Edite `.env` e preencha `GEMINI_API_KEY`. Para usar também o servidor Django,
-preencha `DJANGO_SECRET_KEY` com uma chave própria. Não compartilhe o arquivo.
+Edite `.env` e preencha `GEMINI_API_KEY`. Opcionalmente, defina `GEMINI_PARSER_MODEL`
+e `GEMINI_NARRATOR_MODEL`; quando a chave está ativa, parser e narrador descobrem
+modelos Gemini de texto disponíveis e alternam entre eles em falhas transitórias.
+Para usar também o servidor Django, preencha `DJANGO_SECRET_KEY` com uma chave
+própria. Não compartilhe o arquivo.
 Execute:
 
 ```bash

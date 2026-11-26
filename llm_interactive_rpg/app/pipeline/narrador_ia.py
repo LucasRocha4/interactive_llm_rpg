@@ -8,11 +8,12 @@ from typing import Any
 from google import genai
 from google.genai import types
 
+from .modelos_gemini import MODELO_NARRADOR_PADRAO, gerar_com_fallback
 from .schemas import ResultadoMotor
 
 
 LOGGER = logging.getLogger("rpg.narrator")
-MODELO_PADRAO = "gemini-3.5-flash-lite"
+MODELO_PADRAO = MODELO_NARRADOR_PADRAO
 
 
 def _contexto_narrativo(resultado: ResultadoMotor) -> dict[str, Any]:
@@ -93,23 +94,27 @@ def narrar_resultado(
         system_instruction=instrucao,
     )
 
-    for tentativa in range(2):
-        try:
-            if client is None:
-                client = genai.Client(api_key=api_key)
-            resposta = client.models.generate_content(
-                model=modelo,
-                contents=conteudo,
-                config=config,
-            )
-            texto = getattr(resposta, "text", None)
-            if not isinstance(texto, str) or not texto.strip():
-                raise ValueError("A segunda LLM retornou texto vazio.")
-            return texto.strip()
-        except Exception as erro:
-            if tentativa == 0:
-                LOGGER.warning("Falha ao gerar narracao; repetindo chamada uma vez: %s", erro)
-            else:
-                LOGGER.error("Falha definitiva na narracao; usando fallback: %s", erro)
+    if client is None:
+        client = genai.Client(api_key=api_key)
 
-    return narrativa_fallback(resultado)
+    def gerar(modelo_atual: str) -> str:
+        resposta = client.models.generate_content(
+            model=modelo_atual,
+            contents=conteudo,
+            config=config,
+        )
+        texto = getattr(resposta, "text", None)
+        if not isinstance(texto, str) or not texto.strip():
+            raise RuntimeError("Resposta temporaria vazia da segunda LLM.")
+        return texto.strip()
+
+    try:
+        return gerar_com_fallback(
+            client,
+            modelo,
+            gerar,
+            limite_tentativas=2,
+        )
+    except Exception as erro:
+        LOGGER.error("Falha definitiva na narracao; usando fallback: %s", erro)
+        return narrativa_fallback(resultado)
