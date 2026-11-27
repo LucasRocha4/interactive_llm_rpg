@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RPG Narrado por IA - Hub</title>
+  <link rel="stylesheet" href="../css/hub.css">
+  <script src="../js/hub.js" defer></script>
+</head>
+<body>
+  <canvas id="particulas" aria-hidden="true"></canvas>
+
+  <header>
+    <h1>⚔ RPG NARRADO POR IA</h1>
+    <span>Bem-vindo, aventureiro</span>
+  </header>
+
+  <main class="container">
+    <section class="intro" aria-labelledby="titulo-hub">
+      <h2 id="titulo-hub">Sua história começa aqui</h2>
+      <p class="narrador-frase" id="frase"></p>
+
+      <ol class="passos">
+        <li><strong>Inicie sua jornada</strong> e deixe o narrador abrir a história.</li>
+        <li><strong>Monte seu personagem</strong> do jeito que quiser: nome, classe e história.</li>
+        <li><strong>Chame seus amigos</strong> para a mesma mesa ou jogue sozinho.</li>
+      </ol>
+      <div class="botoes">
+        <button class="btn btn-primario" type="button" data-rota="/nova-jornada/">Nova Jornada</button>
+        <button class="btn btn-secundario" type="button" data-rota="/continuar/">Continuar Jogo</button>
+        <button class="btn btn-convite" type="button" data-rota="/convidar/">Convidar Amigos</button>
+      </div>
+    </section>
+
+    <aside class="cena" aria-label="Exemplo de partida ao vivo">
+      <div class="cena-titulo">Exemplo de partida ao vivo</div>
+      <div class="chat" id="chat"></div>
+      <div class="area-dado">
+        <div class="dado" id="dado" aria-hidden="true"><span>20</span></div>
+      </div>
+    </aside>
+
+    <section class="classes" aria-labelledby="titulo-classes">
+      <h2 id="titulo-classes">Classes</h2>
+      <div class="lista-classes">
+        <article class="cartao-classe" data-classe-card>
+          <span class="classe-icone" aria-hidden="true">⚔</span>
+          <span class="classe-legenda">Classe</span>
+          <h3 data-classe-nome>Guerreiro</h3>
+        </article>
+        <article class="cartao-classe" data-classe-card>
+          <span class="classe-icone" aria-hidden="true">✦</span>
+          <span class="classe-legenda">Classe</span>
+          <h3 data-classe-nome>Mago</h3>
+        </article>
+        <article class="cartao-classe" data-classe-card>
+          <span class="classe-icone" aria-hidden="true">◈</span>
+          <span class="classe-legenda">Classe</span>
+          <h3 data-classe-nome>Ladino</h3>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
