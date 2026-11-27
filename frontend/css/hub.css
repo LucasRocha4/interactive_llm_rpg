@@ -66,11 +66,11 @@ header h1 { color: var(--dourado); font-size: 1.5rem; letter-spacing: 2px; }
 .btn-convite { border: 1px dashed var(--dourado); color: var(--dourado); background: transparent; }
 .btn-convite:hover { background: rgba(201,162,39,.1); }
 
-.cena { padding: 20px; border: 1px solid var(--dourado); border-radius: 14px; background: rgba(90,16,32,.35); box-shadow: 0 0 30px rgba(0,0,0,.6); }
+.cena { height: 520px; min-height: 520px; padding: 20px; display: flex; flex-direction: column; border: 1px solid var(--dourado); border-radius: 14px; background: rgba(90,16,32,.35); box-shadow: 0 0 30px rgba(0,0,0,.6); }
 .cena-titulo { margin-bottom: 14px; display: flex; align-items: center; gap: 8px; color: var(--dourado); font-size: .85rem; letter-spacing: 2px; text-transform: uppercase; }
 .cena-titulo::before { width: 8px; height: 8px; content: ''; border-radius: 50%; background: #e33; animation: piscar 1.2s infinite; }
 @keyframes piscar { 50% { opacity: .2; } }
-.chat { min-height: 280px; display: flex; flex-direction: column; gap: 12px; }
+.chat { height: auto; min-height: 0; flex: 1 1 auto; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; gap: 12px; }
 .msg { max-width: 85%; padding: 10px 14px; border-radius: 10px; font-size: .95rem; line-height: 1.5; opacity: 0; transform: translateY(10px); animation: aparecer .5s forwards; }
 @keyframes aparecer { to { opacity: 1; transform: translateY(0); } }
 .msg .nome { display: block; margin-bottom: 4px; font-size: .75rem; font-weight: 700; }
@@ -80,13 +80,13 @@ header h1 { color: var(--dourado); font-size: 1.5rem; letter-spacing: 2px; }
 .p2 { align-self: flex-end; background: #3b2a10; }
 .p1 .nome, .p2 .nome { color: var(--dourado-claro); }
 
-.area-dado { min-height: 90px; margin-top: 16px; display: flex; justify-content: center; align-items: center; }
+.area-dado { height: 90px; min-height: 90px; flex: 0 0 90px; margin-top: 16px; display: flex; justify-content: center; align-items: center; }
 .dado { width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; transform: rotate(45deg); border-radius: 14px; color: var(--fundo); background: linear-gradient(135deg, var(--dourado-claro), var(--dourado)); box-shadow: 0 0 20px rgba(201,162,39,.5); font-size: 2rem; font-weight: 700; }
 .dado span { transform: rotate(-45deg); }
 .dado.rolando { animation: rolar .6s linear infinite; }
 @keyframes rolar { from { transform: rotate(45deg); } to { transform: rotate(405deg); } }
 
-.narrador-frase { min-height: 1.6em; margin-bottom: 14px; color: var(--dourado); font-size: 1.1rem; font-style: italic; transition: opacity .6s ease; }
+.narrador-frase { height: 3.4em; min-height: 3.4em; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; margin-bottom: 14px; color: var(--dourado); font-size: 1.1rem; font-style: italic; line-height: 1.55; transition: opacity .6s ease; }
 .narrador-frase::before { content: '\201C'; }
 .narrador-frase::after { content: '\201D'; }
 .narrador-frase.some { opacity: 0; }
@@ -138,6 +138,7 @@ header h1 { color: var(--dourado); font-size: 1.5rem; letter-spacing: 2px; }
   .intro h2 { font-size: 2rem; }
   .botoes { max-width: none; }
   .cena { padding: 16px; }
+  .cena { height: 490px; min-height: 490px; }
   .msg { max-width: 95%; font-size: .88rem; }
   .lista-classes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .cartao-classe { min-height: 138px; padding: 17px; }

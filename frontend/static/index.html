@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#07111b">
+  <meta name="theme-color" content="#17090d">
   <meta name="description" content="O Último Lançamento — uma aventura narrada por inteligência artificial.">
   <title>O Último Lançamento</title>
   <link rel="stylesheet" href="../css/paleta_1.css">
@@ -17,7 +17,9 @@
     <span class="sigilo sigilo--tres">✳</span>
     <span class="luz luz--uma"></span>
     <span class="luz luz--duas"></span>
+    <span class="estrela-cadente" id="estrelaCadente"></span>
   </div>
+  <div class="efeitos-destino" id="efeitosDestino" aria-hidden="true"></div>
 
   <header class="topo">
     <a class="marca" href="#inicio" aria-label="O Último Lançamento — início">
@@ -40,6 +42,7 @@
           onde os dados são rolados pelo <strong>próprio sistema</strong>.
           O destino não está nas suas mãos: só as decisões estão.
         </p>
+        <a class="botao botao--dourado botao--hero" href="#">Cadastrar <span aria-hidden="true">↗</span></a>
       </div>
 
       <div class="reliquia" aria-label="Dado interativo">
@@ -67,8 +70,11 @@
         <span class="cena-linha" aria-hidden="true"></span>
       </div>
       <p class="texto" aria-live="polite" aria-atomic="true"><span id="textoCena"></span><span class="cursor" aria-hidden="true"></span></p>
+      <p class="confirmacao-escolha" id="confirmacaoEscolha" aria-live="polite" aria-atomic="true"></p>
       <div class="escolhas" id="escolhas"></div>
     </section>
+
+    <span class="linha-destino secao-revelar" aria-hidden="true"></span>
 
     <section class="destaques secao-revelar" aria-label="Destaques">
       <div class="cards">
@@ -93,17 +99,21 @@
       </div>
     </section>
 
+    <span class="linha-destino secao-revelar" aria-hidden="true"></span>
+
     <section class="como-jogar secao-revelar" aria-labelledby="como-jogar-titulo">
       <div class="como-intro">
         <h2 id="como-jogar-titulo">Como jogar</h2>
       </div>
       <ol class="passos">
-        <li><span class="passo-numero">01</span><span>Crie uma conta e inicie uma jornada.</span><i aria-hidden="true">✦</i></li>
-        <li><span class="passo-numero">02</span><span>Escolha as características do seu personagem e a sua arma.</span><i aria-hidden="true">✦</i></li>
-        <li><span class="passo-numero">03</span><span>O sistema rola os dados e a IA narra o que acontece.</span><i aria-hidden="true">✦</i></li>
-        <li><span class="passo-numero">04</span><span>Jogue sozinho agora e, em breve, com os seus amigos. Vence quem fizer a melhor jogada.</span><i aria-hidden="true">✦</i></li>
+        <li><span class="passo-numero">01</span><span>Crie uma conta e inicie uma jornada.</span><i aria-hidden="true">▤</i></li>
+        <li><span class="passo-numero">02</span><span>Escolha as características do seu personagem e a sua arma.</span><i aria-hidden="true">⚔</i></li>
+        <li><span class="passo-numero">03</span><span>O sistema rola os dados e a IA narra o que acontece.</span><i aria-hidden="true">⚄</i></li>
+        <li><span class="passo-numero">04</span><span>Jogue sozinho agora e, em breve, com os seus amigos. Vence quem fizer a melhor jogada.</span><i aria-hidden="true">⌖</i></li>
       </ol>
     </section>
+
+    <span class="linha-destino secao-revelar" aria-hidden="true"></span>
 
     <section class="chamada secao-revelar">
       <span class="chamada-simbolo" aria-hidden="true">✳</span>
