@@ -1,79 +1,118 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#07111b">
+  <meta name="description" content="O Último Lançamento — uma aventura narrada por inteligência artificial.">
   <title>O Último Lançamento</title>
   <link rel="stylesheet" href="../css/paleta_1.css">
+  <link rel="stylesheet" href="../css/conf.css">
 </head>
 <body>
+  <div class="ambiente" aria-hidden="true">
+    <canvas id="particulas"></canvas>
+    <span class="sigilo sigilo--um">✳</span>
+    <span class="sigilo sigilo--dois">✦</span>
+    <span class="sigilo sigilo--tres">✳</span>
+    <span class="luz luz--uma"></span>
+    <span class="luz luz--duas"></span>
+  </div>
 
-  <canvas id="particulas"></canvas>
+  <header class="topo">
+    <a class="marca" href="#inicio" aria-label="O Último Lançamento — início">
+      <span class="marca-simbolo" aria-hidden="true">✦</span>
+      <span>O Último <b>Lançamento</b></span>
+    </a>
+    <nav class="navegacao" aria-label="Navegação principal">
+      <a class="link-entrar" href="#">Entrar</a>
+      <a class="botao botao--dourado" href="#">Cadastrar <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
 
-  <span class="dado">⚀</span>
-  <span class="dado">⚂</span>
-  <span class="dado">⚄</span>
-  <span class="dado">⚁</span>
-  <span class="dado">⚅</span>
+  <main id="inicio">
+    <section class="hero" aria-labelledby="titulo-principal">
+      <div class="hero-copy">
+        <h1 id="titulo-principal">O ÚLTIMO<br><em>LANÇAMENTO</em></h1>
+        <p class="subtitulo">Cada história é única. A sua começa agora.</p>
+        <p class="apresentacao">
+          Uma aventura narrada por uma <strong>inteligência artificial</strong>,
+          onde os dados são rolados pelo <strong>próprio sistema</strong>.
+          O destino não está nas suas mãos: só as decisões estão.
+        </p>
+      </div>
 
-  <main>
-    <h1>O ÚLTIMO LANÇAMENTO</h1>
-    <p class="subtitulo">Cada história é única. A sua começa agora.</p>
+      <div class="reliquia" aria-label="Dado interativo">
+        <div class="reliquia-halo" aria-hidden="true"></div>
+        <div class="reliquia-orbita reliquia-orbita--externa" aria-hidden="true"></div>
+        <div class="reliquia-orbita reliquia-orbita--interna" aria-hidden="true"></div>
+        <span class="reliquia-marca reliquia-marca--topo" aria-hidden="true">✦</span>
+        <span class="reliquia-marca reliquia-marca--base" aria-hidden="true">✦</span>
+        <button class="dado-grande" id="dadoGrande" type="button" aria-label="Rolar o dado de vinte lados">20</button>
+        <div class="reliquia-caption">
+          <span class="linha-ornamental" aria-hidden="true"></span>
+          <p class="dado-dica">Clique no dado e teste a sua sorte</p>
+          <span class="linha-ornamental" aria-hidden="true"></span>
+        </div>
+        <p class="dado-resultado" id="dadoResultado" aria-live="polite" aria-atomic="true"></p>
+      </div>
+    </section>
 
-    <div class="dado-area">
-      <div class="dado-grande" id="dadoGrande">20</div>
-      <p class="dado-dica">Clique no dado e teste a sua sorte</p>
-      <p class="dado-resultado" id="dadoResultado"></p>
-    </div>
-
-    <p class="apresentacao">
-      Uma aventura narrada por uma <strong>inteligência artificial</strong>,
-      onde os dados são rolados pelo <strong>próprio sistema</strong>.
-      O destino não está nas suas mãos: só as decisões estão.
-    </p>
-
-    <section class="cena">
-      <div class="rotulo">O NARRADOR</div>
-      <p class="texto"><span id="textoCena"></span><span class="cursor"></span></p>
+    <section class="cena secao-revelar" id="cena" aria-label="Cena narrada">
+      <div class="cena-cabecalho">
+        <span class="cena-selo" aria-hidden="true">✦</span>
+        <div>
+          <p class="rotulo">O NARRADOR</p>
+        </div>
+        <span class="cena-linha" aria-hidden="true"></span>
+      </div>
+      <p class="texto" aria-live="polite" aria-atomic="true"><span id="textoCena"></span><span class="cursor" aria-hidden="true"></span></p>
       <div class="escolhas" id="escolhas"></div>
     </section>
 
-    <section class="destaques">
-      <div class="card">
-        <div class="icone">✨</div>
-        <h3>Narrador de IA</h3>
-        <p>Uma história viva, que se adapta ao que você decide fazer.</p>
-      </div>
-      <div class="card">
-        <div class="icone">⚄</div>
-        <h3>Dados do sistema</h3>
-        <p>O sistema rola os dados por você e o resultado muda o rumo da aventura.</p>
-      </div>
-      <div class="card">
-        <div class="icone">📜</div>
-        <h3>Cada história é única</h3>
-        <p>Nenhuma partida se repete. Suas escolhas escrevem o próprio enredo.</p>
+    <section class="destaques secao-revelar" aria-label="Destaques">
+      <div class="cards">
+        <article class="card">
+          <div class="card-topo"><span class="card-icone" aria-hidden="true">✧</span><span class="card-numero">01</span></div>
+          <h3>Narrador de IA</h3>
+          <p>Uma história viva, que se adapta ao que você decide fazer.</p>
+          <span class="card-brilho" aria-hidden="true"></span>
+        </article>
+        <article class="card">
+          <div class="card-topo"><span class="card-icone" aria-hidden="true">⚄</span><span class="card-numero">02</span></div>
+          <h3>Dados do sistema</h3>
+          <p>O sistema rola os dados por você e o resultado muda o rumo da aventura.</p>
+          <span class="card-brilho" aria-hidden="true"></span>
+        </article>
+        <article class="card">
+          <div class="card-topo"><span class="card-icone" aria-hidden="true">✥</span><span class="card-numero">03</span></div>
+          <h3>Cada história é única</h3>
+          <p>Nenhuma partida se repete. Suas escolhas escrevem o próprio enredo.</p>
+          <span class="card-brilho" aria-hidden="true"></span>
+        </article>
       </div>
     </section>
 
-    <section class="como-jogar">
-      <h2>Como jogar</h2>
-      <ol>
-        <li>Crie uma conta e inicie uma jornada.</li>
-        <li>Escolha as características do seu personagem e a sua arma.</li>
-        <li>O sistema rola os dados e a IA narra o que acontece.</li>
-        <li>Jogue sozinho agora e, em breve, com os seus amigos. Vence quem fizer a melhor jogada.</li>
+    <section class="como-jogar secao-revelar" aria-labelledby="como-jogar-titulo">
+      <div class="como-intro">
+        <h2 id="como-jogar-titulo">Como jogar</h2>
+      </div>
+      <ol class="passos">
+        <li><span class="passo-numero">01</span><span>Crie uma conta e inicie uma jornada.</span><i aria-hidden="true">✦</i></li>
+        <li><span class="passo-numero">02</span><span>Escolha as características do seu personagem e a sua arma.</span><i aria-hidden="true">✦</i></li>
+        <li><span class="passo-numero">03</span><span>O sistema rola os dados e a IA narra o que acontece.</span><i aria-hidden="true">✦</i></li>
+        <li><span class="passo-numero">04</span><span>Jogue sozinho agora e, em breve, com os seus amigos. Vence quem fizer a melhor jogada.</span><i aria-hidden="true">✦</i></li>
       </ol>
     </section>
 
-    <section class="chamada">
+    <section class="chamada secao-revelar">
+      <span class="chamada-simbolo" aria-hidden="true">✳</span>
       <p>Venha jogar sozinho ou com amigos.</p>
-      <a class="btn-cadastrar" href="#">Cadastrar</a>
+      <a class="botao botao--dourado botao--grande" href="#">Cadastrar <span aria-hidden="true">↗</span></a>
     </section>
   </main>
 
-  <script src="../js/index.js"></script>
-
+  <footer class="rodape"><span>O ÚLTIMO LANÇAMENTO</span><span class="rodape-linha" aria-hidden="true"></span><span>✦</span></footer>
+  <script src="../js/index_modelo_2.js"></script>
 </body>
 </html>

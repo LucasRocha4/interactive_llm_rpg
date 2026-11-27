@@ -1,0 +1,32 @@
+/* Paleta 4: eclipse astral — índigo, cobre e azul glacial */
+:root {
+  color-scheme: dark;
+  --noite: #07111b;
+  --sombra-vinho: #101d2b;
+  --vinho: #172c3e;
+  --vinho-claro: #203c50;
+  --vidro: rgba(15, 31, 45, .78);
+  --vidro-escuro: rgba(7, 19, 30, .88);
+  --ouro: #c47b52;
+  --ouro-luz: #efb48c;
+  --ouro-sombra: #78462f;
+  --rosa: #89c7d9;
+  --rosa-suave: #5f98ae;
+  --creme: #f4f7f5;
+  --texto-suave: #d3e0e4;
+  --borda: rgba(137, 199, 217, .23);
+  --borda-ouro: rgba(196, 123, 82, .34);
+  --sombra: 0 24px 70px rgba(2, 8, 15, .48);
+  --noite-rgb: 7, 17, 27;
+  --ouro-rgb: 196, 123, 82;
+  --rosa-rgb: 137, 199, 217;
+  --vinho-rgb: 29, 73, 95;
+  --metal-claro: #f0c3a2;
+  --metal-meio: #c47b52;
+  --metal-escuro: #885033;
+  --metal-texto: #24140f;
+  --metal-base: #573323;
+  --metal-sombra-rgb: 73, 39, 27;
+  --metal-luz-rgb: 255, 228, 205;
+  --foco: #c5f2ff;
+}
