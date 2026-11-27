@@ -1,0 +1,238 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 20%, #4a0e1f 0%, #240810 55%, #0d0307 100%);
+  color: #fbeee9;
+  font-family: Georgia, 'Times New Roman', serif;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Fundo vivo: particulas brilhando */
+#particulas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Dados flutuando ao fundo */
+.dado {
+  position: absolute;
+  font-size: 64px;
+  opacity: 0.18;
+  color: #d4af37;
+  animation: flutuar 9s ease-in-out infinite;
+  user-select: none;
+  pointer-events: none;
+  z-index: 0;
+}
+.dado:nth-of-type(1) { top: 8%;  left: 8%;  animation-delay: 0s; }
+.dado:nth-of-type(2) { top: 20%; right: 10%; font-size: 90px; animation-delay: 1.5s; }
+.dado:nth-of-type(3) { top: 55%; left: 5%;  font-size: 80px; animation-delay: 3s; }
+.dado:nth-of-type(4) { top: 70%; right: 7%; animation-delay: 4.5s; }
+.dado:nth-of-type(5) { top: 40%; left: 45%; font-size: 50px; animation-delay: 6s; }
+
+@keyframes flutuar {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-30px) rotate(25deg); }
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 70px 24px 60px;
+  text-align: center;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 6vw, 4rem);
+  color: #d4af37;
+  letter-spacing: 3px;
+  text-shadow: 0 0 25px rgba(212, 175, 55, 0.45);
+  animation: entrada 1.2s ease-out both;
+}
+
+.subtitulo {
+  margin-top: 14px;
+  font-size: 1.25rem;
+  color: #e8a0b0;
+  animation: entrada 1.2s ease-out 0.3s both;
+}
+
+/* Dado grande que rola de verdade */
+.dado-area {
+  margin-top: 40px;
+  animation: entrada 1.2s ease-out 0.5s both;
+}
+.dado-grande {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.6rem;
+  font-weight: bold;
+  color: #1a0b2e;
+  background: linear-gradient(135deg, #d4af37, #f3d46b);
+  border-radius: 22px;
+  box-shadow: 0 0 40px rgba(212, 175, 55, 0.5);
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s;
+}
+.dado-grande:hover { transform: scale(1.06); }
+.dado-grande.rolando { animation: girar 1.4s cubic-bezier(.2,.8,.3,1); }
+
+@keyframes girar {
+  0%   { transform: rotate(0deg) scale(1); }
+  40%  { transform: rotate(540deg) scale(1.25); }
+  100% { transform: rotate(1080deg) scale(1); }
+}
+.dado-dica {
+  margin-top: 14px;
+  font-size: 0.95rem;
+  color: #e8a0b0;
+}
+.dado-resultado {
+  margin-top: 6px;
+  min-height: 1.6em;
+  font-size: 1.1rem;
+  color: #d4af37;
+}
+
+/* Apresentacao do RPG narrado por IA */
+.apresentacao {
+  margin: 40px auto 0;
+  max-width: 640px;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #f3dcd6;
+  animation: entrada 1.2s ease-out 0.7s both;
+}
+.apresentacao strong { color: #d4af37; }
+
+/* Cena narrada com efeito de digitacao */
+.cena {
+  margin: 50px auto 0;
+  max-width: 680px;
+  padding: 26px 28px;
+  text-align: left;
+  background: rgba(20, 3, 8, 0.72);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  border-radius: 14px;
+  box-shadow: 0 0 30px rgba(170, 30, 60, 0.3);
+}
+.cena .rotulo {
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  color: #e8a0b0;
+  margin-bottom: 12px;
+}
+.cena .texto {
+  min-height: 8.5em;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: #f1e9ff;
+}
+.cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: #d4af37;
+  animation: piscar 0.8s steps(1) infinite;
+}
+@keyframes piscar { 50% { opacity: 0; } }
+.escolhas {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s;
+}
+.escolhas.visivel { opacity: 1; pointer-events: auto; }
+.escolhas button {
+  padding: 10px 20px;
+  font-family: inherit;
+  font-size: 0.98rem;
+  color: #d4af37;
+  background: transparent;
+  border: 1px solid #d4af37;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, transform 0.2s;
+}
+.escolhas button:hover {
+  background: #d4af37;
+  color: #1a0b2e;
+  transform: translateY(-2px);
+}
+
+/* Destaques */
+.destaques {
+  margin-top: 50px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.card {
+  padding: 24px 20px;
+  background: rgba(130, 25, 50, 0.32);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 14px;
+  transition: transform 0.25s, border-color 0.25s;
+}
+.card:hover { transform: translateY(-6px); border-color: #d4af37; }
+.card .icone { font-size: 2rem; }
+.card h3 { margin: 10px 0 8px; color: #d4af37; }
+.card p { font-size: 0.98rem; line-height: 1.6; color: #f3dcd6; }
+
+.como-jogar {
+  margin-top: 50px;
+  padding: 28px;
+  background: rgba(130, 25, 50, 0.28);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  border-radius: 14px;
+  text-align: left;
+}
+.como-jogar h2 {
+  color: #d4af37;
+  margin-bottom: 14px;
+  text-align: center;
+}
+.como-jogar ol { padding-left: 22px; line-height: 1.9; }
+
+.chamada { margin-top: 50px; }
+.chamada p { font-size: 1.3rem; margin-bottom: 22px; }
+
+.btn-cadastrar {
+  display: inline-block;
+  padding: 16px 44px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: #1a0b2e;
+  background: linear-gradient(135deg, #d4af37, #f3d46b);
+  border-radius: 50px;
+  animation: pulsar 2s ease-in-out infinite;
+  transition: transform 0.2s;
+}
+.btn-cadastrar:hover { transform: scale(1.08); }
+
+@keyframes pulsar {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.6); }
+  50%      { box-shadow: 0 0 0 18px rgba(212, 175, 55, 0); }
+}
+
+@keyframes entrada {
+  from { opacity: 0; transform: translateY(25px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

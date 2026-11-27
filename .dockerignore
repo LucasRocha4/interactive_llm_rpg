@@ -1,9 +1,0 @@
-.git
-.venv
-.env
-.env.*
-__pycache__
-*.pyc
-*.pyo
-*.sqlite3
-.github

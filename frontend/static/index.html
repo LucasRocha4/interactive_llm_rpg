@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>O Último Lançamento</title>
+  <link rel="stylesheet" href="../css/paleta_1.css">
+</head>
+<body>
+
+  <canvas id="particulas"></canvas>
+
+  <span class="dado">⚀</span>
+  <span class="dado">⚂</span>
+  <span class="dado">⚄</span>
+  <span class="dado">⚁</span>
+  <span class="dado">⚅</span>
+
+  <main>
+    <h1>O ÚLTIMO LANÇAMENTO</h1>
+    <p class="subtitulo">Cada história é única. A sua começa agora.</p>
+
+    <div class="dado-area">
+      <div class="dado-grande" id="dadoGrande">20</div>
+      <p class="dado-dica">Clique no dado e teste a sua sorte</p>
+      <p class="dado-resultado" id="dadoResultado"></p>
+    </div>
+
+    <p class="apresentacao">
+      Uma aventura narrada por uma <strong>inteligência artificial</strong>,
+      onde os dados são rolados pelo <strong>próprio sistema</strong>.
+      O destino não está nas suas mãos: só as decisões estão.
+    </p>
+
+    <section class="cena">
+      <div class="rotulo">O NARRADOR</div>
+      <p class="texto"><span id="textoCena"></span><span class="cursor"></span></p>
+      <div class="escolhas" id="escolhas"></div>
+    </section>
+
+    <section class="destaques">
+      <div class="card">
+        <div class="icone">✨</div>
+        <h3>Narrador de IA</h3>
+        <p>Uma história viva, que se adapta ao que você decide fazer.</p>
+      </div>
+      <div class="card">
+        <div class="icone">⚄</div>
+        <h3>Dados do sistema</h3>
+        <p>O sistema rola os dados por você e o resultado muda o rumo da aventura.</p>
+      </div>
+      <div class="card">
+        <div class="icone">📜</div>
+        <h3>Cada história é única</h3>
+        <p>Nenhuma partida se repete. Suas escolhas escrevem o próprio enredo.</p>
+      </div>
+    </section>
+
+    <section class="como-jogar">
+      <h2>Como jogar</h2>
+      <ol>
+        <li>Crie uma conta e inicie uma jornada.</li>
+        <li>Escolha as características do seu personagem e a sua arma.</li>
+        <li>O sistema rola os dados e a IA narra o que acontece.</li>
+        <li>Jogue sozinho agora e, em breve, com os seus amigos. Vence quem fizer a melhor jogada.</li>
+      </ol>
+    </section>
+
+    <section class="chamada">
+      <p>Venha jogar sozinho ou com amigos.</p>
+      <a class="btn-cadastrar" href="#">Cadastrar</a>
+    </section>
+  </main>
+
+  <script src="../js/index.js"></script>
+
+</body>
+</html>

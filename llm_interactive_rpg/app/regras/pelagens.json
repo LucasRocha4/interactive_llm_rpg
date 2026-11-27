@@ -1,8 +1,0 @@
-[
-  {"id":"marrom","nome":"Marrom","atributos":{"garra":2,"manha":1,"pulo":2,"acaso":1},"texto_original":"Marrom 2 1 2 1"},
-  {"id":"preta","nome":"Preta","atributos":{"garra":2,"manha":2,"pulo":1,"acaso":1},"texto_original":"Preta 2 2 1 1"},
-  {"id":"ruiva","nome":"Ruiva","atributos":{"garra":1,"manha":1,"pulo":2,"acaso":2},"texto_original":"Ruiva 1 1 2 2"},
-  {"id":"cinza","nome":"Cinza","atributos":{"garra":1,"manha":2,"pulo":2,"acaso":1},"texto_original":"Cinza 1 2 2 1"},
-  {"id":"albina","nome":"Albina","atributos":{"garra":1,"manha":2,"pulo":1,"acaso":2},"texto_original":"Albina 1 2 1 2"},
-  {"id":"dourada","nome":"Dourada","atributos":{"garra":2,"manha":1,"pulo":1,"acaso":2},"texto_original":"Dourada 2 1 1 2"}
-]

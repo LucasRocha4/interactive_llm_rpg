@@ -1,1 +1,0 @@
-"""Motor determinístico do jogo."""

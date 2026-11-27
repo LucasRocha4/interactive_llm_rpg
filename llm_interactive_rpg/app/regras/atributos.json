@@ -1,6 +1,0 @@
-[
-  {"id":"garra","nome":"Garra","descricao":"Força bruta e luta de perto","usado_para":["Golpes corpo a corpo","segurar","empurrar","quebrar coisas"],"texto_original":"Garra Força bruta e luta de perto Golpes corpo a corpo, segurar, empurrar, quebrar coisas"},
-  {"id":"manha","nome":"Manha","descricao":"Esperteza e malícia","usado_para":["Saber coisas","farejar","rastrear","improvisar","enganar"],"texto_original":"Manha Esperteza e malícia Saber coisas, farejar, rastrear, improvisar, enganar"},
-  {"id":"pulo","nome":"Pulo","descricao":"Agilidade e pontaria","usado_para":["Saltos","fugas","escapar de golpes","esconder-se","estilingue","arremesso"],"texto_original":"Pulo Agilidade e pontaria Saltos, fugas, escapar de golpes, esconder-se, estilingue e arremesso; define a Defesa"},
-  {"id":"acaso","nome":"Acaso","descricao":"Sorte e destino","usado_para":["Mancada","resistir à praga","defeitos","ser salvo quando Caído","tudo que é aleatório"],"texto_original":"Acaso Sorte e destino Mancada, resistir à praga, defeitos, ser salvo quando Caído, tudo que é aleatório"}
-]
