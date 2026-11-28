@@ -20,6 +20,19 @@ apenas a restrição; em esclarecimentos, faz somente a pergunta necessária.
 O motor aceita um gerador aleatório injetável para testes reproduzíveis. Os
 arquivos oficiais de regras ficam em `llm_interactive_rpg/app/regras/`.
 
+### Campanhas, personagens, NPCs e itens
+
+- O Django persiste campanhas, personagens, NPCs e itens no banco configurado
+  por `DATABASE_URL` (SQLite local por padrão).
+- As migrations criam uma campanha padrão com a ficha `bongo_chule`, caso ela
+  não exista. O cadastro é feito a partir de
+  `llm_interactive_rpg/app/regras/exemplos_de_ficha.json`.
+- O painel administrativo permite cadastrar e consultar esses dados. Uma
+  campanha própria ativa e com personagem tem prioridade sobre a campanha demo
+  ao iniciar o jogo pelo terminal.
+- O contexto enviado ao Gemini inclui a campanha, o personagem e os NPCs
+  carregados do banco.
+
 ### Ficha e cena de teste
 
 - A ficha padrão é **Bongo "Chulé"**, de ID `bongo_chule`, carregada de
@@ -73,6 +86,30 @@ O primeiro comando deve terminar com `OK`; o segundo, com
 ```bash
 python -m unittest discover -s tests -p 'test_ficha_padrao.py' -v
 ```
+
+### Testar os modelos Django
+
+Aplique as migrations e, se necessário, crie uma conta administrativa:
+
+```bash
+python llm_interactive_rpg/manage.py migrate
+python llm_interactive_rpg/manage.py createsuperuser
+```
+
+O painel pode ser iniciado em `http://127.0.0.1:8000/admin/` com:
+
+```bash
+python llm_interactive_rpg/manage.py runserver
+```
+
+Os testes Django do projeto também podem ser executados diretamente:
+
+```bash
+python llm_interactive_rpg/manage.py test tests --verbosity 2
+```
+
+O teste `app.pipeline.test_gemini_dados_banco` cria dados temporários e chama a
+API real quando `GEMINI_API_KEY` está configurada. Sem a chave, ele é ignorado.
 
 ### Teste interativo com Gemini
 
@@ -133,6 +170,8 @@ interface web. A configuração Docker é voltada ao desenvolvimento.
 
 ## Limitações atuais
 
-Não há persistência da partida entre execuções, simulação autônoma de inimigos
-nem geração automática de próximas cenas. A cena e os inimigos são exemplos;
-algumas ações dependem de informações adicionais no contexto.
+Os cadastros persistem no banco, mas o estado corrente da partida durante uma
+rodada continua sendo mantido em memória e não é retomado entre execuções. Não
+há simulação autônoma de inimigos nem geração automática de uma jornada completa,
+com missões, cenas e inimigos próprios. A cena e os inimigos são exemplos; algumas
+ações dependem de informações adicionais no contexto.
